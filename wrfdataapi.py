@@ -24,7 +24,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-# Example URL to scrape (replace with your target URL)
+# Define the URL.
 url_to_scrape = "https://www.ncei.noaa.gov/data/global-forecast-system/access/grid-004-0.5-degree/forecast/202310/20231017/"
 
 # Fetch the webpage content
@@ -49,7 +49,7 @@ for link in download_links:
         filename = os.path.join(down_path, f"{link.text}")
 
         if total_url.endswith(".grb2"):
-            # print(total_url)
+
             try:
                 file_content = requests.get(total_url).content
                 with open(filename, "wb") as file:
