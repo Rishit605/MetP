@@ -1,25 +1,3 @@
-### US GFS FORECASTS ###S
-
-# url = 'https://www.ncei.noaa.gov/data/global-forecast-system/access/grid-004-0.5-degree/forecast/'
-
-# import requests
-# import json
-
-# # Connect to the COVID19-India API
-# api_url = 'https://www.ncei.noaa.gov/access/services/data/v1?dataset=daily-summaries'
-# response = requests.get(api_url)
-
-# # Check if the response is successful (status code 200)
-# if response.status_code == 200:
-#     data = response.text
-#     parsed_data = json.loads(data)
-#     print(data)
-#     # Example: Extract active cases in South Andaman
-# #     active_cases_south_andaman = parsed_data['Andaman and Nicobar Islands']['districtData']['South Andaman']['active']
-# #     print(f"Active cases in South Andaman: {active_cases_south_andaman}")
-# else:
-#     print("Error fetching data from the API")
-
 import os
 import requests
 from bs4 import BeautifulSoup
