@@ -12,11 +12,11 @@ class SimpleLSTMModel(tf.keras.Model):
 
         self.input_shape = None
 
-        def call(self, inputs):
-            x = self.lstm(inputs)
-            x = self.dense1(x)
-            return self.dense2(x)
+    def call(self, inputs):
+        x = self.lstm(inputs)
+        x = self.dense1(x)
+        return self.dense2(x)
 
-        def build(self,input_shape):
-            self.input_shape = input_shape
-            super(SimpleLSTMModel, self).build(input_shape)
+    def build(self,input_shape):
+        self.input_shape = input_shape
+        super(SimpleLSTMModel, self).build(input_shape)

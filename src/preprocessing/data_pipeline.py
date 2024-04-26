@@ -8,44 +8,25 @@ import numpy as np
 
 from sklearn.preprocessing import MinMaxScaler
 
-
-# The API endpoint you want to call
-url = 'https://api.weatherbit.io/v2.0/history/hourly?lat=23.25&lon=77.25&country=India&start_date=2024-01-01&end_date=2024-04-01&key=fcac888d541149bcabe62e93c304cd29'
-
-# Make the GET request
-response = requests.get(url)
-
-# Check if the request was successful
-if response.status_code == 200:
-    # Parse the response JSON into a Python dictionary
-    data = response.json()
-    # Do something with the data
-    dat = data['data']
-
-    # # Saving the JSON Data
-    # with open("data.json", "w") as json_file:
-    #     json.dump(dat json_file)
-    
-else:
-    print(f'Failed to retrieve data: {response.status_code}')
-
-
-# Create an empty list to store DataFrames from each dictionary
-data_frames = []
-
-# Create a DataFrame from each dictionary
-for dicts in dat:
-    data_frame = pd.DataFrame([dicts])  # Wrap data in a list for DataFrame creation
-    data_frames.append(data_frame)
-
-# Concatenate the DataFrames vertically (axis=0)
-df = pd.concat(data_frames, ignore_index=True)
+from weatherapi import api_call, url
 
 
 dir = 'C:\\Projs\\COde\\\Meteo\\\MetP\\data\\'
 filepath = os.path.join(dir, 'hourly_data.csv')
 
-    
+# Make the GET request
+response = requests.get(url)
+
+def get_df() -> pd.DataFrame:
+    if response.status_code != 200:
+        try:
+            df = pd.read_csv(filepath)
+            return df
+        except FileExistsError as e:
+            print(f'{e}: File does not exist in the directory.')
+    else:
+        df = api_call()
+
 def timeseries_fn(dataframe: pd.DataFrame):
     day = 24*60*60
     year = (365.2425)*day
@@ -55,51 +36,177 @@ def timeseries_fn(dataframe: pd.DataFrame):
     dataframe['Year_sin'] = np.sin(dataframe['seconds'] * (2 * np.pi / year))
     dataframe['Year_cos'] = np.cos(dataframe['seconds'] * (2 * np.pi / year))
 
-def pre_process() -> pd.DataFrame:
+# def pre_process() -> pd.DataFrame:
 
-    data_frame = df
+#     data_frame = get_df()
 
-    # Ressting the index of the dataframe
-    data_frame = data_frame.reset_index()
+#     # Ressting the index of the dataframe
+#     data_frame = data_frame.reset_index()
+#     data_frame['timestamp_utc'] = pd.to_datetime(data_frame['timestamp_utc'])
+
+#     data_frame = data_frame.set_index('timestamp_utc')
+#     data_frame['seconds'] = data_frame.index.map(pd.Timestamp.timestamp)
+
+#     timeseries_fn(data_frame)
+
+#     try:    
+#         # data_frame = data_frame.drop(columns=['index', 'h_angle', 'weather', 'app_temp', 'timestamp_local', 'azimuth', 'datetime', 'revision_status', 'pod', 'ts', 'weather', 'seconds'])
+        
+#         ## Temporary Solution
+#         if 'index' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['index'])
+#         else:
+#             pass
+
+#         if 'h_angle' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['h_angle'])
+#         else:
+#             pass
+
+#         if 'weather' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['weather'])
+#         else:
+#             pass
+
+#         if 'app_temp' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['app_temp'])
+#         else:
+#             pass
+
+#         if 'timestamp_local' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['timestamp_local'])
+#         else:
+#             pass
+
+#         if 'azimuth' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['azimuth'])
+#         else:
+#             pass
+
+#         if 'datetime' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['datetime']) 
+#         else:
+#             pass
+
+#         if 'revision_status' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['revision_status'])
+#         else:
+#             pass
+
+#         if 'pod' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['pod'])
+#         else:
+#             pass
+
+#         if 'ts' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['ts'])
+#         else:
+#             pass
+
+#         if 'seconds' in data_frame.columns:
+#             data_frame = data_frame.drop(columns=['seconds'])
+#         else:
+#             pass
+
+
+#         if not os.path.exists(filepath):
+#             try:
+#                 data_frame.to_csv(filepath)
+#                 print('Dataset saved successfully!')
+#                 return data_frame
+#             except ValueError as e:
+#                 print(f'{e}: Dataset saving falied')
+
+#         else:
+#             print(f"File alredy exists in {dir}")
+
+#     except ValueError as e:
+#         if not os.path.exists(filepath):
+#             try:
+#                 data_frame.to_csv(filepath)
+#                 print('Dataset saved successfully!')
+#                 return data_frame
+#             except ValueError as e:
+#                 print(f'{e}: Dataset saving falied')
+
+#         else:
+#             print(f"File alredy exists in {dir}")
+#     return data_frame
+
+
+def pre_process(filepath=filepath) -> pd.DataFrame:
+    """Preprocesses and potentially saves the weather data.
+
+    Args:
+        filepath (str): Path to save the preprocessed data as a CSV file.
+
+    Returns:
+        pd.DataFrame: The preprocessed weather data.
+    """
+
+    data_frame = get_df()  # Assuming this retrieves the DataFrame from the API
+
+    # Reset index and convert timestamp to datetime format
+    data_frame = data_frame.reset_index(drop=True)  # Drop the old index
     data_frame['timestamp_utc'] = pd.to_datetime(data_frame['timestamp_utc'])
+    data_frame.set_index('timestamp_utc', inplace=True)
 
-    data_frame = data_frame.set_index('timestamp_utc')
-    data_frame['seconds'] = data_frame.index.map(pd.Timestamp.timestamp)
+    # Define columns to drop
+    columns_to_drop = [
+        'index', 'h_angle', 'weather', 'app_temp', 'timestamp_local', 'azimuth',
+        'datetime', 'revision_status', 'pod', 'ts', 'seconds'
+    ]
 
-    timeseries_fn(data_frame)
+    # Drop columns only if they exist (using try-except for each)
+    dropped_cols = []
+    for col in columns_to_drop:
+        try:
+            data_frame = data_frame.drop(columns=col)
+            dropped_cols.append(col)
+        except KeyError:
+            pass  # Column does not exist, continue dropping others
 
-    data_frame = data_frame.drop(columns=['h_angle', 'weather', 'app_temp', 'timestamp_local', 'azimuth', 'datetime', 'revision_status', 'index', 'ts', 'weather'])
-    
+    # Informative message about dropped columns (if any)
+    if dropped_cols:
+        print(f"Dropped columns: {', '.join(dropped_cols)}")
+
+    # Save DataFrame if file doesn't exist, handle exceptions
     if not os.path.exists(filepath):
         try:
             data_frame.to_csv(filepath)
             print('Dataset saved successfully!')
         except ValueError as e:
-            print(f'{e}: Dataset saving falied')
-
+            print(f'Dataset saving failed: {e}')
     else:
-        print(f"File alredy exists in {dir}")
+        print(f"File already exists at {filepath}")
 
     return data_frame
 
+
+
 ## Preprocessing 
 
-def forward_scaler() -> np.array:
-  """
-  Scales the dataset into (0,1) range for standariztion for the model.
+def forward_scaler(x_features, y_targets=None) -> np.array:
+    """
+    Scales the dataset into (0,1) range for standariztion for the model.
 
-  Returns:
-    scaled_X: Returns the scaled features of the dataset in the (0,1) range.
-    scaled_y: Returns the scaled target(s) of the dataset in the (0,1) range.
-  """
-  scale = MinMaxScaler(feature_range=(0,1))
+    Returns:
+        scaled_X: Returns the scaled features of the dataset in the (0,1) range.
+        scaled_y: Returns the scaled target(s) of the dataset in the (0,1) range.
+    """
+    scale = MinMaxScaler(feature_range=(0,1))
 
-  _X = window_make(pre_process())[0]
-  _y = window_make(pre_process())[1]
+    #   _X = window_make(pre_process())[0]
+    #   _y = window_make(pre_process())[1]
+        # _X = pre_process()
 
-  scaled_X = scale.fit_transform(_X)
-  scaled_y = scale.fit_transform(_y)
-  return scaled_X, scaled_y
+    if y_targets is None:
+        scaled_X = scale.fit_transform(x_features)
+        return scaled_X
+    else:
+        scaled_X = scale.fit_transform(x_features)
+        scaled_y = scale.fit_transform(y_targets)
+        return scaled_X, scaled_y
 
 
 def backward_scaler(predicts):
@@ -114,22 +221,39 @@ def backward_scaler(predicts):
   unreal_X = scale.inverse(predicts)
   return unreal_X
 
+# def window_make(df):
+#   df_as_np = df.to_numpy()
+#   window_size = len(df.columns) + 1
+
+#   X=[]
+#   y=[]
+
+#   for i in range(len(df_as_np) - window_size):
+#     row = [a for a in df_as_np[i : i + window_size]]
+#     X.append(row)
+
+#     label = [df_as_np[i + window_size][0],
+#              df_as_np[i + window_size][1],
+#              df_as_np[i + window_size][2],
+#              df_as_np[i + window_size][3],
+#              df_as_np[i + window_size][4]]
+#     y.append(label)
+
+#   return np.array(X), np.array(y)
+
 def window_make(df):
   df_as_np = df.to_numpy()
   window_size = len(df.columns) + 1
 
-  X=[]
-  y=[]
+  X = []
+  y = []
 
+  # Early termination to avoid out-of-bounds access
   for i in range(len(df_as_np) - window_size):
     row = [a for a in df_as_np[i : i + window_size]]
     X.append(row)
 
-    label = [df_as_np[i + window_size][0],
-             df_as_np[i + window_size][1],
-             df_as_np[i + window_size][2],
-             df_as_np[i + window_size][3],
-             df_as_np[i + window_size][4]]
+    label = [df_as_np[i + window_size][j] for j in range(window_size - 1)]
     y.append(label)
 
   return np.array(X), np.array(y)
