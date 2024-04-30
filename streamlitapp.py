@@ -1,12 +1,17 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from PIL import Image
 
 # Set page configuration
 st.set_page_config(layout="wide")
 
 # Load data from CSV
-weather_data = pd.read_csv("weather_viz.csv")
+weather_data = pd.read_csv(r"C:\Projs\COde\Meteo\MetP\data\bhopal_weather_hourly_10_days.csv")
+weather_data['Longitude'] = 77.4126
+weather_data['Latitude'] = 23.2599
+weather_data['Datetime'] = pd.to_datetime(weather_data['Datetime'])
+# print(weather_data)
 
 # Create the main container
 container = st.container()
@@ -19,9 +24,9 @@ with container:
 # Create columns for the menu toggle, current, and next sections
 col1, col2, col3 = st.columns([1, 2, 1])
 
-# Menu toggle section
-with col1:
-    st.markdown("<h3 style='text-align: center;'>MENU TOGGLE</h3>", unsafe_allow_html=True)
+# # Menu toggle section
+# with col1:
+#     st.markdown("<h3 style='text-align: center;'>MENU TOGGLE</h3>", unsafe_allow_html=True)
 
 
 # Current section
@@ -33,7 +38,7 @@ with col2:
     # city_selector = st.selectbox("City Selector")#, weather_data["city"].unique())
 
     # Replace city selector with default text (choose your desired city)
-    default_city = "Bjo"  # Modify this to your preferred default city
+    default_city = "Bhopal"  # Modify this to your preferred default city
     st.write(f"Current City: {default_city}")
 
 
@@ -48,9 +53,20 @@ with col2:
 
         ts = weather_data.index
 
-        # Create line plot for temperature
-        fig1 = px.line(filtered_data, x=ts, y="temp", title="Temperature")
+        # # Create line plot for temperature
+        # fig1 = px.line(filtered_data, x=ts, y="temp", title="Temperature")
+        # st.plotly_chart(fig1, use_container_width=True)
+        # Filter data based on selected location
+        filtered_data = weather_data
+        
+
+        # Create temperature heatmap
+        fig1 = px.imshow(filtered_data.pivot_table(index='Datetime', columns='Latitude', values='Temperature (°C)'),
+                         labels=dict(x="Latitude", y="Longitude", color="Temperature (°C)"),
+                         title="Temperature Heatmap",
+                         color_continuous_scale='Plasma')
         st.plotly_chart(fig1, use_container_width=True)
+
 
         # Create line plot for wind speed
         fig3 = px.line(filtered_data, x=ts, y="wind_spd", title="Wind Speed")
@@ -73,9 +89,24 @@ with col3:
 # Weather parameters representation
 st.markdown("<h3 style='text-align: left;'>WEATHER PARAMETERS REPRESENTATION</h3>", unsafe_allow_html=True)
 
+
+# Load the image
+image = Image.open("WRF2kmRAIN.png")
+
+# Set desired width and height (or use aspect ratio)
+width = 800  # Adjust these values as needed
+height = 800
+
+# Resize the image (maintains aspect ratio by default)
+resized_image = image.resize((width, height))
+
+# # Display the resized image
+# st.image(resized_image, caption="Aerial Image (resized)", use_column_width=True)
+
 # Aerial representation
 st.markdown("<h3 style='text-align: left;'>AERIAL REPRESENTATION</h3>", unsafe_allow_html=True)
-st.image("WRF2kmRAIN.png", caption="Images", use_column_width=True)
+st.image(resized_image, caption="MP Weather", use_column_width=False)
+
 
 
 # import streamlit as st
