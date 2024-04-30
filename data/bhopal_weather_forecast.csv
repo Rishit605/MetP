@@ -1,0 +1,17 @@
+Date,Temperature (°C),Humidity (%),Precipitation (mm),Wind Speed (m/s),Wind Direction,Thunderstorm Likelihood
+2024-04-29,33.1,29,0.0,1.8,west,No
+2024-04-30,32.7,27,0.0,1.9,west-northwest,No
+2024-05-01,30.9,21,0.0,2.3,west-northwest,No
+2024-05-02,29.7,18,0.0,1.6,west,No
+2024-05-03,30.9,21,0.0,1.1,west-northwest,No
+2024-05-04,32.1,18,0.0,1.6,west,No
+2024-05-05,36.4,20,0.0,5.6,west-northwest,No
+2024-05-06,36.1,19,0.0,5.3,west-northwest,No
+2024-05-07,36.0,23,0.4375,5.9,west-northwest,No
+2024-05-08,35.8,22,0.0,3.3,west-northwest,No
+2024-05-09,34.9,24,0.0,6.0,west-northwest,No
+2024-05-10,35.1,25,0.0,7.4,west,No
+2024-05-11,34.9,25,0.0,5.2,west-northwest,No
+2024-05-12,35.1,23,0.0,3.8,south-southeast,No
+2024-05-13,36.2,21,0.8125,5.0,west-southwest,No
+2024-05-14,36.2,17,0.0,4.1,southeast,No
