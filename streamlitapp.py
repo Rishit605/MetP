@@ -1,111 +1,111 @@
-import streamlit as st
-import pandas as pd
-import plotly.express as px
-from PIL import Image
+# import streamlit as st
+# import pandas as pd
+# import plotly.express as px
+# from PIL import Image
 
-# Set page configuration
-st.set_page_config(layout="wide")
+# # Set page configuration
+# st.set_page_config(layout="wide")
 
-# Load data from CSV
-weather_data = pd.read_csv(r"C:\Projs\COde\Meteo\MetP\data\bhopal_weather_hourly_10_days.csv")
-weather_data['Longitude'] = 77.4126
-weather_data['Latitude'] = 23.2599
-weather_data['Datetime'] = pd.to_datetime(weather_data['Datetime'])
-# print(weather_data)
+# # Load data from CSV
+# weather_data = pd.read_csv(r"C:\Projs\COde\Meteo\MetP\data\bhopal_weather_hourly_10_days.csv")
+# weather_data['Longitude'] = 77.4126
+# weather_data['Latitude'] = 23.2599
+# weather_data['Datetime'] = pd.to_datetime(weather_data['Datetime'])
+# # print(weather_data)
 
-# Create the main container
-container = st.container()
+# # Create the main container
+# container = st.container()
 
-# Add the heading
-with container:
-    st.markdown("<h1 style='text-align: center;'>Extreme Weather Forecasting</h1>", unsafe_allow_html=True)
-    st.markdown("---")
+# # Add the heading
+# with container:
+#     st.markdown("<h1 style='text-align: center;'>Extreme Weather Forecasting</h1>", unsafe_allow_html=True)
+#     st.markdown("---")
 
-# Create columns for the menu toggle, current, and next sections
-col1, col2, col3 = st.columns([1, 2, 1])
+# # Create columns for the menu toggle, current, and next sections
+# col1, col2, col3 = st.columns([1, 2, 1])
 
-# # Menu toggle section
-# with col1:
-#     st.markdown("<h3 style='text-align: center;'>MENU TOGGLE</h3>", unsafe_allow_html=True)
-
-
-# Current section
-with col2:
-    st.markdown("<h3 style='text-align: center;'>CURRENT</h3>", unsafe_allow_html=True)
-    st.markdown("---")
-
-    # City selector
-    # city_selector = st.selectbox("City Selector")#, weather_data["city"].unique())
-
-    # Replace city selector with default text (choose your desired city)
-    default_city = "Bhopal"  # Modify this to your preferred default city
-    st.write(f"Current City: {default_city}")
+# # # Menu toggle section
+# # with col1:
+# #     st.markdown("<h3 style='text-align: center;'>MENU TOGGLE</h3>", unsafe_allow_html=True)
 
 
-    # Graph representation
-    st.markdown("<h4 style='text-align: center;'>GRAPHS REPRESENTATION</h4>", unsafe_allow_html=True)
-    col4, col5 = st.columns(2)
+# # Current section
+# with col2:
+#     st.markdown("<h3 style='text-align: center;'>CURRENT</h3>", unsafe_allow_html=True)
+#     st.markdown("---")
 
-    with col4:
-        # # Filter data based on selected city
-        # filtered_data = weather_data[weather_data["city"] == city_selector]
-        filtered_data = weather_data
+#     # City selector
+#     # city_selector = st.selectbox("City Selector")#, weather_data["city"].unique())
 
-        ts = weather_data.index
+#     # Replace city selector with default text (choose your desired city)
+#     default_city = "Bhopal"  # Modify this to your preferred default city
+#     st.write(f"Current City: {default_city}")
 
-        # # Create line plot for temperature
-        # fig1 = px.line(filtered_data, x=ts, y="temp", title="Temperature")
-        # st.plotly_chart(fig1, use_container_width=True)
-        # Filter data based on selected location
-        filtered_data = weather_data
+
+#     # Graph representation
+#     st.markdown("<h4 style='text-align: center;'>GRAPHS REPRESENTATION</h4>", unsafe_allow_html=True)
+#     col4, col5 = st.columns(2)
+
+#     with col4:
+#         # # Filter data based on selected city
+#         # filtered_data = weather_data[weather_data["city"] == city_selector]
+#         filtered_data = weather_data
+
+#         ts = weather_data.index
+
+#         # # Create line plot for temperature
+#         # fig1 = px.line(filtered_data, x=ts, y="temp", title="Temperature")
+#         # st.plotly_chart(fig1, use_container_width=True)
+#         # Filter data based on selected location
+#         filtered_data = weather_data
         
 
-        # Create temperature heatmap
-        fig1 = px.imshow(filtered_data.pivot_table(index='Datetime', columns='Latitude', values='Temperature (°C)'),
-                         labels=dict(x="Latitude", y="Longitude", color="Temperature (°C)"),
-                         title="Temperature Heatmap",
-                         color_continuous_scale='Plasma')
-        st.plotly_chart(fig1, use_container_width=True)
+#         # Create temperature heatmap
+#         fig1 = px.imshow(filtered_data.pivot_table(index='Datetime', columns='Latitude', values='Temperature (°C)'),
+#                          labels=dict(x="Latitude", y="Longitude", color="Temperature (°C)"),
+#                          title="Temperature Heatmap",
+#                          color_continuous_scale='Plasma')
+#         st.plotly_chart(fig1, use_container_width=True)
 
 
-        # Create line plot for wind speed
-        fig3 = px.line(filtered_data, x=ts, y="wind_spd", title="Wind Speed")
-        st.plotly_chart(fig3, use_container_width=True)
+#         # Create line plot for wind speed
+#         fig3 = px.line(filtered_data, x=ts, y="wind_spd", title="Wind Speed")
+#         st.plotly_chart(fig3, use_container_width=True)
 
-    with col5:
-        # Create line plot for humidity
-        fig2 = px.line(filtered_data, x=ts, y="rh", title="Humidity")
-        st.plotly_chart(fig2, use_container_width=True)
+#     with col5:
+#         # Create line plot for humidity
+#         fig2 = px.line(filtered_data, x=ts, y="rh", title="Humidity")
+#         st.plotly_chart(fig2, use_container_width=True)
 
-        # Create line plot for precipitation
-        fig4 = px.line(filtered_data, x=ts, y="precip", title="Precipitation")
-        st.plotly_chart(fig4, use_container_width=True)
-
-
-# Next section
-with col3:
-    st.markdown("<h3 style='text-align: center;'>NEXT</h3>", unsafe_allow_html=True)
-
-# Weather parameters representation
-st.markdown("<h3 style='text-align: left;'>WEATHER PARAMETERS REPRESENTATION</h3>", unsafe_allow_html=True)
+#         # Create line plot for precipitation
+#         fig4 = px.line(filtered_data, x=ts, y="precip", title="Precipitation")
+#         st.plotly_chart(fig4, use_container_width=True)
 
 
-# Load the image
-image = Image.open("WRF2kmRAIN.png")
+# # Next section
+# with col3:
+#     st.markdown("<h3 style='text-align: center;'>NEXT</h3>", unsafe_allow_html=True)
 
-# Set desired width and height (or use aspect ratio)
-width = 800  # Adjust these values as needed
-height = 800
+# # Weather parameters representation
+# st.markdown("<h3 style='text-align: left;'>WEATHER PARAMETERS REPRESENTATION</h3>", unsafe_allow_html=True)
 
-# Resize the image (maintains aspect ratio by default)
-resized_image = image.resize((width, height))
 
-# # Display the resized image
-# st.image(resized_image, caption="Aerial Image (resized)", use_column_width=True)
+# # Load the image
+# image = Image.open("WRF2kmRAIN.png")
 
-# Aerial representation
-st.markdown("<h3 style='text-align: left;'>AERIAL REPRESENTATION</h3>", unsafe_allow_html=True)
-st.image(resized_image, caption="MP Weather", use_column_width=False)
+# # Set desired width and height (or use aspect ratio)
+# width = 800  # Adjust these values as needed
+# height = 800
+
+# # Resize the image (maintains aspect ratio by default)
+# resized_image = image.resize((width, height))
+
+# # # Display the resized image
+# # st.image(resized_image, caption="Aerial Image (resized)", use_column_width=True)
+
+# # Aerial representation
+# st.markdown("<h3 style='text-align: left;'>AERIAL REPRESENTATION</h3>", unsafe_allow_html=True)
+# st.image(resized_image, caption="MP Weather", use_column_width=False)
 
 
 
@@ -182,3 +182,27 @@ st.image(resized_image, caption="MP Weather", use_column_width=False)
 # # Aerial representation
 # st.markdown("<h3 style='text-align: left;'>AERIAL REPRESENTATION</h3>", unsafe_allow_html=True)
 # st.image("aerial_image.png", caption="Images", use_column_width=True)
+
+import pandas as pd
+import streamlit as st
+
+data_df = pd.DataFrame(
+    {
+        "apps": [
+            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/5435b8cb-6c6c-490b-9608-799b543655d3/Home_Page.png",
+            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/ef9a7627-13f2-47e5-8f65-3f69bb38a5c2/Home_Page.png",
+            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/31b99099-8eae-4ff8-aa89-042895ed3843/Home_Page.png",
+            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/6a399b09-241e-4ae7-a31f-7640dc1d181e/Home_Page.png",
+        ],
+    }
+)
+
+st.data_editor(
+    data_df,
+    column_config={
+        "apps": st.column_config.ImageColumn(
+            label="Preview Image", width="large", help="Streamlit app preview screenshots"
+        )
+    },
+    hide_index=True,
+)
