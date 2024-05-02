@@ -147,10 +147,10 @@ if page_to_show == "Parameters":
         
     gig = px.line(data_frame=curr_24_data, x="Datetime", y=curr_24_data["Temperature (°C)"], title="Temperature")
     
-    gig.add_scatter(x=bhopal_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Bhopal")
-    gig.add_scatter(x=bangalore_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Banglore")
-    gig.add_scatter(x=srinagar_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Srinagar")
-    gig.add_scatter(x=gandhi_nagar_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Gandhi Nagar")
+    gig.add_scatter(x=bhopal_data_df['Datetime'], y=bhopal_data_df['Temperature (°C)'], name="Bhopal")
+    gig.add_scatter(x=bangalore_data_df['Datetime'], y=bangalore_data_df['Temperature (°C)'], name="Banglore")
+    gig.add_scatter(x=srinagar_data_df['Datetime'], y=srinagar_data_df['Temperature (°C)'], name="Srinagar")
+    gig.add_scatter(x=gandhi_nagar_data_df['Datetime'], y=gandhi_nagar_data_df['Temperature (°C)'], name="Gandhi Nagar")
 
     # Set the size of the plot
     gig.update_layout(width=716, height=350)
