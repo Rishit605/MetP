@@ -3,11 +3,10 @@ import streamlit as st
 import matplotlib.pyplot as plt
 from PIL import Image
 import plotly.express as px
+
+from plotting import *
 from helpers import curr_date, meanT, meanW, meanH
 
-# Check if the script has been modified
-if st.button("Reload App"):
-    st.rerun()
 
 # Read CSV data for each city
 bhopal_data_df = pd.read_csv('data/bhopal_weather_hourly_10_days.csv')
@@ -46,7 +45,6 @@ curr_24_data = weather_data.iloc[48:72]
 nxt_24_data = weather_data.iloc[72:96]
 nxtT_24_data = weather_data.iloc[96:120]
 
-g1, g2, g3 = st.columns(3)
 
 st.divider()
 
@@ -56,16 +54,17 @@ with st.sidebar:
     st.title("Menu")
     page_to_show = st.sidebar.radio("Page", ["Parameters", "Aerial Representation"])
 
-col1, col2 = st.columns(2)
 
 param_cols = []
 
-# st.subheader(f"10 Days Forecast of {selected_city}")
+
 # Parameters page
 if page_to_show == "Parameters":
-
+    
     # Current temperature display
+    
     st.header(f"Todays Weather in {selected_city} feels like:")
+    g1, g2, g3 = st.columns(3)
 
     with g1:
         st.subheader(f"{curr_date()[0]}")
@@ -85,6 +84,7 @@ if page_to_show == "Parameters":
         g3.container(border=True).metric("Wind", f"{meanW(nxtT_24_data)[0]} Km/h", f"{meanW(nxtT_24_data)[1]}%")
         g3.container(border=True).metric("Humidity", f"{meanH(nxtT_24_data)[0]}%", f"{meanH(nxtT_24_data)[1]}%")
 
+    
 
     st.divider()
     st.subheader("Weather Parameters")
@@ -107,20 +107,18 @@ if page_to_show == "Parameters":
         for column in weather_data.columns:
             if column not in ['Datetime', 'Thunderstorm Occurrence']:
                 param_cols.append(column)
-         
+    
+    col1, col2 = st.columns(2)
     with col1:
         
-        # Create line plot for wind speed
-        fig1 = px.line(data_frame=curr_24_data, x="Datetime", y="Relative Humidity (%)", title="Relative Humiddity")
-        st.plotly_chart(fig1, use_container_width=True)
+        # Line plot for Helative Humidity
+        st.plotly_chart(px_line_plots(curr_24_data, 'Relative Humidity (%)'), use_container_width=True)
+
+        # Line Plot for Temperature
+        st.plotly_chart(px_line_plots(curr_24_data, 'Temperature (°C)'), use_container_width=True)
 
         # Line Plot for precipetation
-        fig2 = px.line(data_frame=curr_24_data, x="Datetime", y="Temperature (°C)", title="Temperature")
-        st.plotly_chart(fig2, use_container_width=True)
-
-        # Line Plot for precipetation
-        fig3 = px.line(data_frame=curr_24_data, x="Datetime", y="Precipitation (mm)", title="Rainfall")
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(px_line_plots(curr_24_data, 'Precipitation (mm)'), use_container_width=True)
         
         st.divider()
         st.write(param_cols[0], weather_data[param_cols[0]])
@@ -128,33 +126,34 @@ if page_to_show == "Parameters":
         st.write(param_cols[2], weather_data[param_cols[2]])
 
     with col2:
-        # Line Plot for precipetation
-        fig4 = px.line(data_frame=curr_24_data, x="Datetime", y="Wind Speed (m/s)", title="Wind Speed")
-        st.plotly_chart(fig4, use_container_width=True)
+        # Line Plot for Wind Speed
+        st.plotly_chart(px_line_plots(curr_24_data, 'Wind Speed (m/s)'), use_container_width=True)
 
-        # Line Plot for precipetation
-        fig5 = px.line(data_frame=curr_24_data, x="Datetime", y="Cloud Coverage (%)", title="Cloud Coverage")
-        st.plotly_chart(fig5, use_container_width=True)
+        # Line Plot for Cloud Coverage
+        st.plotly_chart(px_line_plots(curr_24_data, 'Cloud Coverage (%)'), use_container_width=True)
 
-        # Line plot for Temperature
-        fig6 = px.line(data_frame=curr_24_data, x="Datetime", y="Thunderstorm Occurrence", title="Thunderstorm Probability")
-        st.plotly_chart(fig6, use_container_width=True)
+        # Line plot for Thunderstorms
+        st.plotly_chart(px_line_plots(curr_24_data, 'Thunderstorm Occurrence'), use_container_width=True)
 
         st.divider()
         st.write(param_cols[3], curr_24_data[param_cols[3]])
         st.write(param_cols[4], curr_24_data[param_cols[4]])
         st.write(param_cols[5], curr_24_data[param_cols[5]])
         
-    gig = px.line(data_frame=curr_24_data, x="Datetime", y=curr_24_data["Temperature (°C)"], title="Temperature")
-    
-    gig.add_scatter(x=bhopal_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Bhopal")
-    gig.add_scatter(x=bangalore_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Banglore")
-    gig.add_scatter(x=srinagar_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Srinagar")
-    gig.add_scatter(x=gandhi_nagar_data_df['Datetime'], y=curr_24_data['Temperature (°C)'], name="Gandhi Nagar")
+    st.divider()
+    st.subheader("Parameter Covarience")
 
-    # Set the size of the plot
-    gig.update_layout(width=716, height=350)
-    st.plotly_chart(gig, use_container_width=True)
+    st.plotly_chart(multi_line(curr_24_data, 'Relative Humidity (%)'), use_container_width=True)
+    st.plotly_chart(multi_line(curr_24_data, 'Temperature (°C)'), use_container_width=True)
+    st.plotly_chart(multi_line(curr_24_data, 'Precipitation (mm)'), use_container_width=True)
+    st.plotly_chart(multi_line(curr_24_data, 'Wind Speed (m/s)'), use_container_width=True)
+    st.plotly_chart(multi_line(curr_24_data, 'Cloud Coverage (%)'), use_container_width=True)
+    st.plotly_chart(multi_line(curr_24_data, 'Thunderstorm Occurrence'), use_container_width=True)
+
+    st.divider()
+    st.subheader("Meterogram")
+
+    st.pyplot(meteogram_generator(curr_24_data))
 
 
 # Aerial representation page (example using a placeholder image)
