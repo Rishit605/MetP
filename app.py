@@ -151,7 +151,7 @@ if page_to_show == "Parameters":
     st.plotly_chart(multi_line(curr_24_data, 'Thunderstorm Occurrence'), use_container_width=True)
 
     st.divider()
-    st.subheader("Meterogram")
+    st.header("Meterogram")
 
     st.pyplot(meteogram_generator(curr_24_data))
 
