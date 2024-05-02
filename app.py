@@ -42,9 +42,9 @@ weather_data = get_weather_data(selected_city)
 
 
 # Getting the hour data
-curr_24_data = weather_data.iloc[48:72]
-nxt_24_data = weather_data.iloc[72:96]
-nxtT_24_data = weather_data.iloc[96:120]
+curr_24_data = weather_data.iloc[72:96]
+nxt_24_data = weather_data.iloc[96:120]
+nxtT_24_data = weather_data.iloc[128:144]
 
 g1, g2, g3 = st.columns(3)
 
