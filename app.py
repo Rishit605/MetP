@@ -41,9 +41,9 @@ weather_data = get_weather_data(selected_city)
 
 
 # Getting the hour data
-curr_24_data = weather_data.iloc[72:96]
-nxt_24_data = weather_data.iloc[96:120]
-nxtT_24_data = weather_data.iloc[128:144]
+curr_24_data = weather_data.iloc[144:192]
+nxt_24_data = weather_data.iloc[192:216]
+nxtT_24_data = weather_data.iloc[216:240]
 
 
 st.divider()
