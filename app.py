@@ -5,7 +5,7 @@ from PIL import Image
 import plotly.express as px
 
 from plotting import *
-from utils.helpers import curr_date, meanT, meanW, meanH
+from src.utils.helpers import curr_date, meanT, meanW, meanH
 
 
 # Read CSV data for each city
