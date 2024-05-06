@@ -68,19 +68,19 @@ if page_to_show == "Parameters":
 
     with g1:
         st.subheader(f"{curr_date()[0]}")
-        g1.container(border=True).metric("Temperature", f"{float(meanT(curr_24_data)[0])}", f"{float(meanT(curr_24_data)[1])} °C")
+        g1.container(border=True).metric("Temperature", f"{float(meanT(curr_24_data)[0])} °C", f"{float(meanT(curr_24_data)[1])} °C")
         g1.container(border=True).metric("Wind", f"{meanW(curr_24_data)[0]} Km/h", f"{meanW(curr_24_data)[1]}%")
         g1.container(border=True).metric("Humidity", f"{meanH(curr_24_data)[0]}%", f"{meanH(curr_24_data)[1]}%")
 
     with g2:
         st.subheader(f"{curr_date()[1]}")
-        g2.container(border=True).metric("Temperature", f"{float(meanT(nxt_24_data)[0])}", f"{float(meanT(nxt_24_data)[1])} °C")
+        g2.container(border=True).metric("Temperature", f"{float(meanT(nxt_24_data)[0])} °C", f"{float(meanT(nxt_24_data)[1])} °C")
         g2.container(border=True).metric("Wind", f"{meanW(nxt_24_data)[0]} Km/h", f"{meanW(nxt_24_data)[1]}%")
         g2.container(border=True).metric("Humidity", f"{meanH(nxt_24_data)[0]}%", f"{meanH(nxt_24_data)[1]}%")
 
     with g3:
         st.subheader(f"{curr_date()[2]}")
-        g3.container(border=True).metric("Temperature", f"{float(meanT(nxtT_24_data)[0])}", f"{float(meanT(nxtT_24_data)[1])} °C")
+        g3.container(border=True).metric("Temperature", f"{float(meanT(nxtT_24_data)[0])} °C", f"{float(meanT(nxtT_24_data)[1])} °C")
         g3.container(border=True).metric("Wind", f"{meanW(nxtT_24_data)[0]} Km/h", f"{meanW(nxtT_24_data)[1]}%")
         g3.container(border=True).metric("Humidity", f"{meanH(nxtT_24_data)[0]}%", f"{meanH(nxtT_24_data)[1]}%")
 
