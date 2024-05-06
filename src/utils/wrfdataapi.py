@@ -14,26 +14,30 @@ download_links = soup.find_all("a", href=True)
 down_path = 'C:\\Projs\COde\\Earthquake\\earthquake-prediction\\data'
 count = 0 
 
-# Iterate through the links and download the files
-for link in download_links:
-    if count == 1:
-        break
-    else:
-        file_url = link["href"]
+
+def gfs_crawler_data():
+    # Iterate through the links and download the files
+    for link in download_links:
+        if count == 1:
+            break
+        else:
+            file_url = link["href"]
 
 
-        total_url = str(url_to_scrape) + file_url
-        # Customize the filename as needed
-        filename = os.path.join(down_path, f"{link.text}")
+            total_url = str(url_to_scrape) + file_url
+            # Customize the filename as needed
+            filename = os.path.join(down_path, f"{link.text}")
 
-        if total_url.endswith(".grb2"):
+            if total_url.endswith(".grb2"):
 
-            try:
-                file_content = requests.get(total_url).content
-                with open(filename, "wb") as file:
-                    file.write(file_content)
-                    count += 1
-                print(f"Downloaded: {filename}")
-            except Exception as e:
-                print(f"Error downloading {total_url}: {e}")
+                try:
+                    file_content = requests.get(total_url).content
+                    with open(filename, "wb") as file:
+                        file.write(file_content)
+                        count += 1
+                    print(f"Downloaded: {filename}")
+                except Exception as e:
+                    print(f"Error downloading {total_url}: {e}")
 
+if __name__ == "__main__":
+    gfs_crawler_data()

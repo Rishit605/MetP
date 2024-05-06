@@ -366,4 +366,3 @@ def std_fit_fn():
                 apply_std_fn(X1_Train, y1_Train, i)
                 apply_std_fn(X1_Val, y1_Val, i)
                 apply_std_fn(X1_Test, y1_Test, i)
-

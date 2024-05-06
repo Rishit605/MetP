@@ -117,4 +117,4 @@ def meteogram_generator(data):
     # Set the x-axis to display dates
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d, %H'))
 
-    return fig
+    return plt
