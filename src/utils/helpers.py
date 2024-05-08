@@ -75,29 +75,39 @@ def generate_nearby_coordinates(latitude, longitude, distance_range_km):
 import time
 import calendar
 import datetime
+from datetime import datetime, timedelta
 
-def curr_date():
-	now = time.localtime()
+# def curr_date():
+# 	now = time.localtime()
 
-	# Get the year and month.
-	year = now.tm_year
-	month = now.tm_mon
-	day = now.tm_mday
+# 	# Get the year and month.
+# 	year = now.tm_year
+# 	month = now.tm_mon
+# 	day = now.tm_mday
 
-	# Create a list to store the dates
-	dates = []
+# 	# Create a list to store the dates
+# 	dates = []
 
-    # Add the current date to the list
-	current_date = datetime.date(year, month, day)
-	dates.append(current_date)
+#     # Add the current date to the list
+# 	current_date = datetime.date(year, month, day)
+# 	dates.append(current_date)
 
-    # Add the dates of the next two days to the list
-	for i in range(1, 3):
-		next_date = current_date + datetime.timedelta(days=i)
-		dates.append(next_date)
-		# print(next_date)
+#     # Add the dates of the next two days to the list
+# 	for i in range(1, 3):
+# 		next_date = current_date + datetime.timedelta(days=i)
+# 		dates.append(next_date)
 
-	return dates
+# 	return dates
+
+
+
+def get_dates():
+    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    next_day = today + timedelta(days=1)
+    second_day = (today + timedelta(days=2)).replace(hour=0, minute=0, second=0)
+    third_day = (today + timedelta(days=2)).replace(hour=23, minute=0, second=0)
+    return today, next_day, second_day, third_day
+
 	
 import pandas as pd
 
