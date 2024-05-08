@@ -47,9 +47,7 @@ curr_24_data = curr_24_data.reset_index()
 nxt_24_data = weather_data.loc[(weather_data['Datetime'] >= pd.to_datetime(get_dates()[1])) & (weather_data['Datetime'] < pd.to_datetime(get_dates()[2]))]
 nxtT_24_data = weather_data.loc[(weather_data['Datetime'] >= pd.to_datetime(get_dates()[2])) & (weather_data['Datetime'] < pd.to_datetime(get_dates()[3]))]
 
-
 st.divider()
-
 
 with st.sidebar:
     # Navigation bar for different pages
@@ -58,7 +56,6 @@ with st.sidebar:
 
 
 parameter_columns = []
-
 
 # Parameters page
 if page_to_show == "Parameters":
@@ -86,11 +83,8 @@ if page_to_show == "Parameters":
         g3.container(border=True).metric("Wind", f"{meanW(nxtT_24_data)[0]} m/s", f"{meanW(nxtT_24_data)[1]}%")
         g3.container(border=True).metric("Humidity", f"{meanH(nxtT_24_data)[0]}%", f"{meanH(nxtT_24_data)[1]}%")
 
-    
-
     st.divider()
     st.subheader("Weather Parameters")
-    
 
     ### FIX THIS ###
     # Check data type of weather_data
@@ -98,19 +92,12 @@ if page_to_show == "Parameters":
         # Access individual values by index label
         temperature = weather_data['Temperature (°C)']
         humidity = weather_data['Relative Humidity (%)']
-        # ... access other values as needed
-        # st.write("Temperature:", temperature, "°C")
-        # st.write("Relative Humidity:", humidity, "%")
-        # ... write other values
-
     else:
         # pass
         # # Iterate through DataFrame columns
         for column in weather_data.columns:
             if column not in ['Datetime', 'Thunderstorm Occurrence']:
                 parameter_columns.append(column)
-    
-    st.write(parameter_columns[0])
 
     col1, col2 = st.columns(2)
     with col1:
