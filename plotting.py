@@ -8,10 +8,10 @@ from matplotlib.lines import Line2D
 
 ## PARAMETERS
 # Read CSV data for each city
-bhopal_data_df = pd.read_csv('data/bhopal_weather_hourly_10_days.csv')
-bangalore_data_df = pd.read_csv('data/Bengaluru_weather_hourly_10_days.csv')
-gandhi_nagar_data_df = pd.read_csv('data/gandhinagar_weather_hourly_10_days.csv')
-srinagar_data_df = pd.read_csv('data/srinagar_weather_hourly_10_days.csv')
+bhopal_data_df = pd.read_csv('data/hr_data_main_citites/bhopal_weather_hourly_10_days.csv')
+bangalore_data_df = pd.read_csv('data/hr_data_main_citites/Bengaluru_weather_hourly_10_days.csv')
+gandhi_nagar_data_df = pd.read_csv('data/hr_data_main_citites/gandhinagar_weather_hourly_10_days.csv')
+srinagar_data_df = pd.read_csv('data/hr_data_main_citites/srinagar_weather_hourly_10_days.csv')
 
 # Combine DataFrames into a dictionary
 cities_data = {
@@ -24,7 +24,17 @@ cities_data = {
 
 ## Line plots
 def px_line_plots(dataframe, variable: str):
-    return px.line(data_frame=dataframe, x="Datetime", y=variable, title=variable)
+    fig = px.line(data_frame=dataframe,
+                  x=pd.Series(dataframe["Datetime"]), y=pd.Series(dataframe[variable]),
+                  title=variable)
+
+    fig.add_bar(x=pd.Series(dataframe["Datetime"]), y=pd.Series(dataframe[variable]), showlegend=False)
+
+    fig.update_traces(marker_color='rgb(158,202,225)', marker_line_color='rgb(0,48,107)',
+                  marker_line_width=2.5, opacity=0.45)
+
+    fig.update_layout(xaxis_title = "TimeLine (Hourly)", yaxis_title = variable)
+    return fig
 
 def multi_line(dataframe, variable: str):
     gig = px.line(data_frame=dataframe, x="Datetime", y=dataframe[variable], title=variable)
@@ -72,28 +82,6 @@ def meteogram_generator(data):
     ax2 = ax.twinx()
     ax2.set_ylabel('Wind Speed (m/s)')
     ax2.set_ylim(0, max(data['Wind Speed (m/s)']) * 1.1)
-
-    # # Add hover tooltips
-    # tooltip_annotations = []
-    # for i, date in enumerate(data['date']):
-    #     tooltip_annotations.append(f"Date: {date.strftime('%Y-%m-%d, %H')}\nTemp: {data['Temperature (°C)'][i]:.2f}°C\nHumidity: {data['Relative Humidity (%)'][i]:.2f}%\nWind Speed: {data['Wind Speed (m/s)'][i]:.2f} m/s\nWind Direction: {data['Wind Direction (degrees)'][i]}°")
-
-    # tooltip_annotations = ax.annotate("", xy=(0,0), xytext=(20,20), textcoords="offset points",
-    #                                 bbox=dict(boxstyle="round", fc="w"),
-    #                                 arrowprops=dict(arrowstyle="->"))
-    # tooltip_annotations.set_visible(False)
-
-    # def update_tooltip(event):
-    #     x, y = event.xdata, event.ydata
-    #     if x and y:
-    #         index = data['date'].searchsorted(x)[0]
-    #         tooltip_annotations.xy = (x, y)
-    #         tooltip_annotations.set_text(tooltip_annotations[index])
-    #         tooltip_annotations.set_visible(True)
-    #     else:
-    #         tooltip_annotations.set_visible(False)
-
-    # fig.canvas.mpl_connect("motion_notify_event", update_tooltip)
 
     # Add climatology or averages
     avg_temp = data['Temperature (°C)'].mean()
