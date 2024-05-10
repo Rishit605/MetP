@@ -59,7 +59,6 @@ except AttributeError as e:
 
 st.divider()
 
-
 with st.sidebar:
     # Navigation bar for different pages
     st.title("Menu")
@@ -67,7 +66,6 @@ with st.sidebar:
 
 
 parameter_columns = []
-
 
 # Parameters page
 if page_to_show == "Parameters":
