@@ -135,7 +135,7 @@ def multi_bar(cities_data: dict, variable: str):
         xaxis_title="Timeline (Hourly)",
         yaxis_title=variable,
         width=1550,
-        height=700,
+        height=600,
         xaxis=dict(
             rangeselector=dict(
                 buttons=list([
