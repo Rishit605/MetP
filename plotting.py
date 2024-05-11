@@ -134,7 +134,7 @@ def multi_bar(cities_data: dict, variable: str):
         barmode='group',
         xaxis_title="Timeline (Hourly)",
         yaxis_title=variable,
-        width=1450,
+        width=1500,
         height=750,
         xaxis=dict(
             rangeselector=dict(
