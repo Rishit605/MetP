@@ -149,6 +149,7 @@ def multi_bar(cities_data: dict, variable: str):
             type="date",
             range=[start_time, end_time]  # Set initial range
         ),
+        autosize=True,
     )
 
     return fig
