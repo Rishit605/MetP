@@ -171,20 +171,8 @@ if page_to_show == "Parameters":
 
         st.divider()
         st.subheader("Tabular Parameters(Hourly)")
-
-        col1, col2, col3 = st.columns(3)
-
-        with col1:
-            st.write(parameter_columns[0], curr_24_data[parameter_columns[0]])
-            st.write(parameter_columns[3], curr_24_data[parameter_columns[3]])
-           
-        with col2:
-            st.write(parameter_columns[1], curr_24_data[parameter_columns[1]])
-            st.write(parameter_columns[4], curr_24_data[parameter_columns[4]])
-            
-        with col3:
-            st.write(parameter_columns[2], curr_24_data[parameter_columns[2]])
-            st.write(parameter_columns[5], curr_24_data[parameter_columns[5]])
+        st.write(f"{selected_city}")
+        st.dataframe(curr_24_data)
            
 
         st.divider()
