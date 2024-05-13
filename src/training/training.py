@@ -4,7 +4,7 @@ import numpy as np
 from tensorflow import keras
 from tensorflow.keras.callbacks import ModelCheckpoint
 
-from model import SimpleLSTMModel
+from model import OtherLSTMModel
 from data_pipeline import *
 
 ## Parameters
@@ -38,7 +38,7 @@ print(X_Train)
 
 # Defining the Model
 n_features = len(pre_process().columns)
-model = SimpleLSTMModel(n_features=n_features, n_target_variables=n_features)
+model = OtherLSTMModel(n_features=n_features, n_target_variables=n_features)
 
 # Define callback to save the best model based on validation loss
 filepath = r'C:\Projs\COde\Meteo\MetP\src\model\best_weather_model.keras'  # Path to save the best model
