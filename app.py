@@ -7,13 +7,14 @@ from plotly.graph_objects import Figure
 
 from plotting import *
 from src.utils.helpers import get_dates, meanT, meanW, meanH
-
+from src.preprocessing.data_pipeline import pre_process_OpenWeather_map
+from src.utils.weatherapi import cities_url
 
 # Read CSV data for each city
-bhopal_data_df = pd.read_csv('data/hr_data_main_citites/bhopal_weather_hourly_10_days.csv')
-bangalore_data_df = pd.read_csv('data/hr_data_main_citites/Bengaluru_weather_hourly_10_days.csv')
-gandhi_nagar_data_df = pd.read_csv('data/hr_data_main_citites/gandhinagar_weather_hourly_10_days.csv')
-srinagar_data_df = pd.read_csv('data/hr_data_main_citites/srinagar_weather_hourly_10_days.csv')
+bhopal_data_df = pre_process_OpenWeather_map(cities_url['Bhopal_URL'])
+bangalore_data_df = pre_process_OpenWeather_map(cities_url['Banglore_URL'])
+gandhi_nagar_data_df = pre_process_OpenWeather_map(cities_url['GandhiNagar_URL'])
+srinagar_data_df = pre_process_OpenWeather_map(cities_url['Srinagar_URL'])
 
 # Combine DataFrames into a dictionary
 cities_data = {
@@ -27,7 +28,7 @@ for i, x in cities_data.items():
     x['Datetime'] = pd.to_datetime(x['Datetime'])
 
 # Function to fetch weather data for a specific city
-def get_weather_data(city):
+def get_weather_data(city) -> pd.DataFrame:
     city_data = cities_data[city]
     return city_data  # Assuming the first row represents current data
 
@@ -48,13 +49,14 @@ selected_city = st.selectbox("Select City:", list(cities_data.keys()))
 
 # Fetch weather data for the selected city
 weather_data = get_weather_data(selected_city)
-weather_data = weather_data.iloc[:, 1:]
+# st.write(weather_data['Datetime'])
+# weather_data = weather_data.iloc[:, 1:]
 
 # Getting the hour data
 try:
     curr_24_data = weather_data.loc[(weather_data['Datetime'] >= pd.to_datetime(get_dates()[0])) & (weather_data['Datetime'] < pd.to_datetime(get_dates()[1]))]
-    curr_24_data = curr_24_data.reset_index()
-    curr_24_data = curr_24_data.drop(columns=['index'])
+    # curr_24_data = curr_24_data.reset_index()
+    # curr_24_data = curr_24_data.drop(columns=['index'])
 except AttributeError as e:
     print(f"{e}: Data for the current date. Please wait while we rectify this error.")
 
@@ -98,7 +100,7 @@ if page_to_show == "Parameters":
             # st.write("IT")
     with f3:
         with f3.container(border=True):
-            st.metric("Humidity", f"{meanH(curr_24_data)[0]}%", f"{meanH(curr_24_data)[1]}%")
+            st.metric("Relative Humidity", f"{meanH(curr_24_data)[0]}%", f"{meanH(curr_24_data)[1]}%")
             # st.write("IT")
 
     st.subheader(f"Weather in {selected_city} for the next two days might feel:")
@@ -111,20 +113,20 @@ if page_to_show == "Parameters":
         with g1:
             st.subheader(f"{get_dates()[0].strftime('%Y/%m/%d')}")
             g1.container(border=True).metric("Temperature", f"{float(meanT(curr_24_data)[0])} °C", f"{float(meanT(curr_24_data)[1])} °C")
-            g1.container(border=True).metric("Wind", f"{meanW(curr_24_data)[0]} m/s", f"{meanW(curr_24_data)[1]}%")
-            g1.container(border=True).metric("Humidity", f"{meanH(curr_24_data)[0]}%", f"{meanH(curr_24_data)[1]}%")
+            g1.container(border=True).metric("Wind Speed", f"{meanW(curr_24_data)[0]} m/s", f"{meanW(curr_24_data)[1]}%")
+            g1.container(border=True).metric("Relative Humidity", f"{meanH(curr_24_data)[0]}%", f"{meanH(curr_24_data)[1]}%")
 
         with g2:
             st.subheader(f"{get_dates()[1].strftime('%Y/%m/%d')}")
             g2.container(border=True).metric("Temperature", f"{float(meanT(nxt_24_data)[0])} °C", f"{float(meanT(nxt_24_data)[1])} °C")
-            g2.container(border=True).metric("Wind", f"{meanW(nxt_24_data)[0]} m/s", f"{meanW(nxt_24_data)[1]}%")
-            g2.container(border=True).metric("Humidity", f"{meanH(nxt_24_data)[0]}%", f"{meanH(nxt_24_data)[1]}%")
+            g2.container(border=True).metric("Wind Speed", f"{meanW(nxt_24_data)[0]} m/s", f"{meanW(nxt_24_data)[1]}%")
+            g2.container(border=True).metric("Relative Humidity", f"{meanH(nxt_24_data)[0]}%", f"{meanH(nxt_24_data)[1]}%")
 
         with g3:
             st.subheader(f"{get_dates()[2].strftime('%Y/%m/%d')}")
             g3.container(border=True).metric("Temperature", f"{float(meanT(nxtT_24_data)[0])} °C", f"{float(meanT(nxtT_24_data)[1])} °C")
-            g3.container(border=True).metric("Wind", f"{meanW(nxtT_24_data)[0]} m/s", f"{meanW(nxtT_24_data)[1]}%")
-            g3.container(border=True).metric("Humidity", f"{meanH(nxtT_24_data)[0]}%", f"{meanH(nxtT_24_data)[1]}%")
+            g3.container(border=True).metric("Wind Speed", f"{meanW(nxtT_24_data)[0]} m/s", f"{meanW(nxtT_24_data)[1]}%")
+            g3.container(border=True).metric("Relative Humidity", f"{meanH(nxtT_24_data)[0]}%", f"{meanH(nxtT_24_data)[1]}%")
 
     
 
