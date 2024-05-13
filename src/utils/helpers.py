@@ -77,29 +77,6 @@ import calendar
 import datetime
 from datetime import datetime, timedelta
 
-# def curr_date():
-# 	now = time.localtime()
-
-# 	# Get the year and month.
-# 	year = now.tm_year
-# 	month = now.tm_mon
-# 	day = now.tm_mday
-
-# 	# Create a list to store the dates
-# 	dates = []
-
-#     # Add the current date to the list
-# 	current_date = datetime.date(year, month, day)
-# 	dates.append(current_date)
-
-#     # Add the dates of the next two days to the list
-# 	for i in range(1, 3):
-# 		next_date = current_date + datetime.timedelta(days=i)
-# 		dates.append(next_date)
-
-# 	return dates
-
-
 
 def get_dates():
     today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -132,7 +109,48 @@ def meanW(dataa):
     delta_WS = mean_and_delta(dataa['Wind Speed (m/s)'])[1]
     return mean_WS, delta_WS
 
-def meanH(dataa):
+def meanH(dataa: pd.DataFrame):
+    """
+    Retuens the mean 
+    """
     mean_h = mean_and_delta(dataa['Relative Humidity (%)'])[0]
     delta_h = mean_and_delta(dataa['Relative Humidity (%)'])[1]
     return mean_h, delta_h
+
+
+import math
+
+##
+def calculate_relative_humidity(temperature_celsius, dew_point_celsius):
+    """
+    Calculate and returns the Relative Humidty in percentage.
+    """
+    # Constants for the Magnus-Tetens formula
+    A = 17.27
+    B = 237.7
+
+    # Calculate the saturation vapor pressure (Pws) using the temperature
+    def saturation_vapor_pressure(temperature):
+        return 6.112 * math.exp((A * temperature) / (B + temperature))
+
+    # Calculate the actual vapor pressure (Pw) using the dew point
+    def actual_vapor_pressure(dew_point):
+        return 6.112 * math.exp((A * dew_point) / (B + dew_point))
+
+    # Calculate saturation vapor pressure and actual vapor pressure
+    Pws = saturation_vapor_pressure(temperature_celsius)
+    Pw = actual_vapor_pressure(dew_point_celsius)
+
+    # Calculate relative humidity as a percentage
+    relative_humidity = (Pw / Pws) * 100
+
+    return relative_humidity
+
+
+def extract_value_or_zero(x):
+    if isinstance(x, dict) and '1h' in x:
+        return x['1h']
+    elif pd.isna(x):
+        return 0
+    else:
+        return x
