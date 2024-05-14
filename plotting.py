@@ -22,10 +22,10 @@ srinagar_data_df = pd.read_csv('data/hr_data_main_citites/srinagar_weather_hourl
 
 # Combine DataFrames into a dictionary
 cities_data = {
-    "Bhopal": bhopal_data_df,
-    "Bangalore": bangalore_data_df,
-    "Gandhi Nagar": gandhi_nagar_data_df,
-    "Srinagar": srinagar_data_df
+    "AirField#1": bhopal_data_df,
+    "AirField#2": bangalore_data_df,
+    "AirField#3": gandhi_nagar_data_df,
+    "AirField#4": srinagar_data_df
 }
 
 
@@ -112,7 +112,7 @@ def multi_bar(cities_data: dict, variable: str):
         ]
 
     # Calculate default start and end time (6-hour window)
-    end_time = max(cities_data['Bhopal']['Datetime'])  # Assume Bhopal has the latest timestamp
+    end_time = max(cities_data['AireField#1']['Datetime'])  # Assume Bhopal has the latest timestamp
     start_time = end_time - datetime.timedelta(hours=6)
 
     # Create Plotly figure
