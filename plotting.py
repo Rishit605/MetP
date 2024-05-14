@@ -176,7 +176,8 @@ def meteogram_generator(data):
                         pivot='middle', color='k', scale=50, linewidth=0.5)
 
     # Add vertical lines for specific events
-    event_dates = [data['date'].iloc[1], data['date'].iloc[3], data['date'].iloc[4]]
+    # event_dates = [data['date'].iloc[1], data['date'].iloc[3], data['date'].iloc[4]]
+    event_dates = data['Datetime].sample(n=3)
     for event_date in event_dates:
         ax.axvline(pd.to_datetime(event_date), color='k', linestyle='--', label=f'Event on {event_date}')
 
