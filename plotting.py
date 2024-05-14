@@ -166,7 +166,7 @@ def meteogram_generator(data):
 
     # Plot the data
     temp_line, = ax.plot(data['date'], data['Temperature (°C)'], label='Temperature', color='r')
-    humidity_line, = ax.plot(data['date'], data['Relative Humidity (%)'], label='Humidity', color='g')
+    humidity_line, = ax.plot(data['date'], data['Humidity (%)'], label='Humidity', color='g')
     wind_speed_line, = ax.plot(data['date'], data['Wind Speed (m/s)'], label='Wind Speed', color='b')
 
     # Add wind barbs
@@ -176,13 +176,13 @@ def meteogram_generator(data):
                         pivot='middle', color='k', scale=50, linewidth=0.5)
 
     # Add vertical lines for specific events
-    event_dates = [data['date'].iloc[7], data['date'].iloc[17], data['date'].iloc[22]]
+    event_dates = [data['date'].iloc[1], data['date'].iloc[3], data['date'].iloc[4]]
     for event_date in event_dates:
         ax.axvline(pd.to_datetime(event_date), color='k', linestyle='--', label=f'Event on {event_date}')
 
     # Add filled area plots
     ax.fill_between(data['date'], data['Temperature (°C)'], color='r', alpha=0.2)
-    ax.fill_between(data['date'], data['Relative Humidity (%)'], color='g', alpha=0.2)
+    ax.fill_between(data['date'], data['Humidity (%)'], color='g', alpha=0.2)
     ax.fill_between(data['date'], data['Wind Speed (m/s)'], color='b', alpha=0.2)
 
     # Add dual Y-axes with different units
@@ -192,7 +192,7 @@ def meteogram_generator(data):
 
     # Add climatology or averages
     avg_temp = data['Temperature (°C)'].mean()
-    avg_humidity = data['Relative Humidity (%)'].mean()
+    avg_humidity = data['Humidity (%)'].mean()
     avg_wind_speed = data['Wind Speed (m/s)'].mean()
     ax.axhline(avg_temp, color='r', linestyle='--', label='Avg. Temperature')
     ax.axhline(avg_humidity, color='g', linestyle='--', label='Avg. Humidity')
