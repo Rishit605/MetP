@@ -139,7 +139,7 @@ if page_to_show == "Parameters":
         if isinstance(weather_data, pd.Series):
             # Access individual values by index label
             temperature = weather_data['Temperature (°C)']
-            humidity = weather_data['Relative Humidity (%)']
+            humidity = weather_data['Humidity (%)']
             # ... access other values as needed
             # st.write("Temperature:", temperature, "°C")
             # st.write("Relative Humidity:", humidity, "%")
@@ -153,7 +153,7 @@ if page_to_show == "Parameters":
 
             
         # Line plot for Helative Humidity
-        st.plotly_chart(px_line_plots(curr_24_data, 'Relative Humidity (%)'), use_container_width=True)
+        st.plotly_chart(px_line_plots(curr_24_data, 'Humidity (%)'), use_container_width=True)
 
         # Line Plot for Temperature
         st.plotly_chart(px_line_plots(curr_24_data, 'Temperature (°C)'), use_container_width=True)
@@ -180,7 +180,7 @@ if page_to_show == "Parameters":
         st.divider()
         st.subheader("Parameter Covarience")
 
-        st.plotly_chart(multi_bar(cities_data, 'Relative Humidity (%)'))
+        st.plotly_chart(multi_bar(cities_data, 'Humidity (%)'))
         st.plotly_chart(multi_bar(cities_data, 'Temperature (°C)'))
         st.plotly_chart(multi_bar(cities_data, 'Precipitation (mm)'))
         st.plotly_chart(multi_bar(cities_data, 'Wind Speed (m/s)'))
