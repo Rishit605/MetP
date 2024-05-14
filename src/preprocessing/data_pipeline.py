@@ -236,7 +236,7 @@ def pre_process_OpenWeather_map(URL) -> pd.DataFrame:
         data_frame_OWM['rain'] = 0
 
     # Renamning the Columns for preset names
-    data_frame_OWM.rename(columns={'dt':'Datetime', 'temp': 'Temperature (°C)', 'humidity': 'Humidity (%)', 'wind_gust': 'Wind Gust (m/s)', 'rain': 'Precipitation (mm)', 'wind_speed': 'Wind Speed (m/s)', 'wind_deg':'Wind Direction (degrees)', 'clouds':'Cloud Coverage (%)', 'dew_point':'Dew Point (°C)'}, inplace=True)
+    data_frame_OWM.rename(columns={'dt':'Datetime', 'temp': 'Temperature (°C)', 'humidity': 'Humidity (%)', 'gust': 'Wind Gust (m/s)', 'speed': 'Wind Speed (m/s)', 'deg':'Wind Direction (degrees)', 'all':'Cloud Coverage (%)', 'rain': 'Precipitation (mm)'}, inplace=True)
     
     thunderstorm_ids = [200, 201, 202, 210, 211, 212, 221, 230, 231, 232]
 
@@ -250,7 +250,7 @@ def pre_process_OpenWeather_map(URL) -> pd.DataFrame:
 
     data_frame_OWM['Thunderstorm Occurrence'] = data_frame_OWM['id'].apply(calculate_thunderstorm_prob) # Appedn the thunderstorm Probability Percentages
     
-    columns_to_drop = ['feels_like', 'uvi', 'visibility', 'weather', 'pop', 'main', 'description', 'icon', 'id']
+    columns_to_drop = ['visibility', 'pop', 'sys', 'dt_txt', 'feels_like', 'temp_max', 'temp_min', 'sea_level', 'grnd_level', 'temp_kf', 'id', 'main', 'description', 'icon']
 
     # Drop columns only if they exist (using try-except for each)
     dropped_cols = []
@@ -263,7 +263,7 @@ def pre_process_OpenWeather_map(URL) -> pd.DataFrame:
 
 
     # Adding the Relative Humidity
-    data_frame_OWM['Relative Humidity (%)'] = data_frame_OWM.apply(lambda row: calculate_relative_humidity(row[data_frame_OWM.columns[1]], row[data_frame_OWM.columns[4]]), axis=1)
+    # data_frame_OWM['Relative Humidity (%)'] = data_frame_OWM.apply(lambda row: calculate_relative_humidity(row[data_frame_OWM.columns[1]], row[data_frame_OWM.columns[4]]), axis=1)
 
     return data_frame_OWM
 
