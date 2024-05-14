@@ -113,8 +113,8 @@ def meanH(dataa: pd.DataFrame):
     """
     Retuens the mean 
     """
-    mean_h = mean_and_delta(dataa['Relative Humidity (%)'])[0]
-    delta_h = mean_and_delta(dataa['Relative Humidity (%)'])[1]
+    mean_h = mean_and_delta(dataa['Humidity (%)'])[0]
+    delta_h = mean_and_delta(dataa['Humidity (%)'])[1]
     return mean_h, delta_h
 
 
@@ -148,8 +148,8 @@ def calculate_relative_humidity(temperature_celsius, dew_point_celsius):
 
 
 def extract_value_or_zero(x):
-    if isinstance(x, dict) and '1h' in x:
-        return x['1h']
+    if isinstance(x, dict) and '3h' in x:
+        return x['3h']
     elif pd.isna(x):
         return 0
     else:
