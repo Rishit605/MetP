@@ -18,10 +18,10 @@ srinagar_data_df = pre_process_OpenWeather_map(cities_url['Srinagar_URL'])
 
 # Combine DataFrames into a dictionary
 cities_data = {
-    "Bhopal": bhopal_data_df,
-    "Bangalore": bangalore_data_df,
-    "Gandhi Nagar": gandhi_nagar_data_df,
-    "Srinagar": srinagar_data_df
+    "AirField#1": bhopal_data_df,
+    "AirField#2": bangalore_data_df,
+    "AirField#3": gandhi_nagar_data_df,
+    "AirField#4": srinagar_data_df
 }
 
 for i, x in cities_data.items():
