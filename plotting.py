@@ -112,7 +112,7 @@ def multi_bar(cities_data: dict, variable: str):
         ]
 
     # Calculate default start and end time (6-hour window)
-    end_time = max(cities_data['AireField#1']['Datetime'])  # Assume Bhopal has the latest timestamp
+    end_time = max(cities_data['AirField#1']['Datetime'])  # Assume Bhopal has the latest timestamp
     start_time = end_time - datetime.timedelta(hours=6)
 
     # Create Plotly figure
