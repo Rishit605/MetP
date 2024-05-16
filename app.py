@@ -202,20 +202,20 @@ elif page_to_show == "Aerial Representation":
 
     with cl1:
         st.subheader('Surface Geopotential Height')
-        image1 = Image.open(r"data\aerial_rep\hgtsfc_projection.png")  # Replace with your actual aerial image
+        image1 = Image.open("data/aerial_rep/hgtsfc_projection.png")  # Replace with your actual aerial image
         st.image(image1)
 
         st.subheader('Surface Pressure')
-        image2 = Image.open(r"data\aerial_rep\pressfc_projection.png")  # Replace with your actual aerial image
+        image2 = Image.open("data/aerial_rep/pressfc_projection.png")  # Replace with your actual aerial image
         st.image(image2)
     
     with cl2:
         st.subheader('Specific Pressure')
-        image3 = Image.open(r"data\aerial_rep\spfh_projection.png")  # Replace with your actual aerial image
+        image3 = Image.open("data/aerial_rep/spfh_projection.png")  # Replace with your actual aerial image
         st.image(image3)
 
         st.subheader('Temperature')
-        image4 = Image.open(r"data\aerial_rep\tmp_projection.png")  # Replace with your actual aerial image
+        image4 = Image.open("data/aerial_rep/tmp_projection.png")  # Replace with your actual aerial image
         st.image(image4)
     # image = Image.open("placeholder_image.jpg")  # Replace with your actual aerial image
     # st.image(image)
