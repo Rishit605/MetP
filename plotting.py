@@ -167,7 +167,8 @@ def meteogram_generator(data):
     # Plot the data
     temp_line, = ax.plot(data['date'], data['Temperature (°C)'], label='Temperature', color='r')
     humidity_line, = ax.plot(data['date'], data['Humidity (%)'], label='Humidity', color='g')
-    wind_speed_line, = ax.plot(data['date'], data['Wind Speed (m/s)'], label='Wind Speed', color='b')
+    wind_speed_line, = ax.plot(data['date'], data['Wind Speed (m/s)'], label='Wind Speed', color='c')
+    precipetation_line, = ax.plot(data['date'], data['Precipitation (mm)'], label='Precipitation', color='b')
 
     # Add wind barbs
     wind_barbs = ax.quiver(data['date'], data['Wind Speed (m/s)'], 
@@ -184,7 +185,8 @@ def meteogram_generator(data):
     # Add filled area plots
     ax.fill_between(data['date'], data['Temperature (°C)'], color='r', alpha=0.2)
     ax.fill_between(data['date'], data['Humidity (%)'], color='g', alpha=0.2)
-    ax.fill_between(data['date'], data['Wind Speed (m/s)'], color='b', alpha=0.2)
+    ax.fill_between(data['date'], data['Wind Speed (m/s)'], color='c', alpha=0.2)
+    ax.fill_between(data['date'], data['Precipitation (mm)'], color='b', alpha=0.2)
 
     # Add dual Y-axes with different units
     ax2 = ax.twinx()
@@ -195,15 +197,18 @@ def meteogram_generator(data):
     avg_temp = data['Temperature (°C)'].mean()
     avg_humidity = data['Humidity (%)'].mean()
     avg_wind_speed = data['Wind Speed (m/s)'].mean()
+    avg_precipitation = data['Precipitation (mm)'].mean()
+
     ax.axhline(avg_temp, color='r', linestyle='--', label='Avg. Temperature')
     ax.axhline(avg_humidity, color='g', linestyle='--', label='Avg. Humidity')
-    ax.axhline(avg_wind_speed, color='b', linestyle='--', label='Avg. Wind Speed')
+    ax.axhline(avg_wind_speed, color='c', linestyle='--', label='Avg. Wind Speed')
+    ax.axhline(avg_precipitation, color='b', linestyle='--', label='Avg. Precipitation')
 
     # Customize the plot
     ax.set_xlabel('Date')
     ax.set_ylabel('Value')
     ax.set_title('Meteogram')
-    lines = [temp_line, humidity_line, wind_speed_line, wind_barbs]
+    lines = [temp_line, humidity_line, wind_speed_line, precipetation_line, wind_barbs]
     labels = [line.get_label() for line in lines]
     ax.legend(lines, labels, loc='upper left')
 
