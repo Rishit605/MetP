@@ -76,103 +76,6 @@ def timeseries_fn(dataframe: pd.DataFrame):
     dataframe['Year_sin'] = np.sin(dataframe['seconds'] * (2 * np.pi / year))
     dataframe['Year_cos'] = np.cos(dataframe['seconds'] * (2 * np.pi / year))
 
-# def pre_process() -> pd.DataFrame:
-
-#     data_frame = get_df()
-
-#     # Ressting the index of the dataframe
-#     data_frame = data_frame.reset_index()
-#     data_frame['timestamp_utc'] = pd.to_datetime(data_frame['timestamp_utc'])
-
-#     data_frame = data_frame.set_index('timestamp_utc')
-#     data_frame['seconds'] = data_frame.index.map(pd.Timestamp.timestamp)
-
-#     timeseries_fn(data_frame)
-
-#     try:    
-#         # data_frame = data_frame.drop(columns=['index', 'h_angle', 'weather', 'app_temp', 'timestamp_local', 'azimuth', 'datetime', 'revision_status', 'pod', 'ts', 'weather', 'seconds'])
-        
-#         ## Temporary Solution
-#         if 'index' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['index'])
-#         else:
-#             pass
-
-#         if 'h_angle' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['h_angle'])
-#         else:
-#             pass
-
-#         if 'weather' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['weather'])
-#         else:
-#             pass
-
-#         if 'app_temp' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['app_temp'])
-#         else:
-#             pass
-
-#         if 'timestamp_local' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['timestamp_local'])
-#         else:
-#             pass
-
-#         if 'azimuth' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['azimuth'])
-#         else:
-#             pass
-
-#         if 'datetime' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['datetime']) 
-#         else:
-#             pass
-
-#         if 'revision_status' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['revision_status'])
-#         else:
-#             pass
-
-#         if 'pod' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['pod'])
-#         else:
-#             pass
-
-#         if 'ts' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['ts'])
-#         else:
-#             pass
-
-#         if 'seconds' in data_frame.columns:
-#             data_frame = data_frame.drop(columns=['seconds'])
-#         else:
-#             pass
-
-
-#         if not os.path.exists(filepath):
-#             try:
-#                 data_frame.to_csv(filepath)
-#                 print('Dataset saved successfully!')
-#                 return data_frame
-#             except ValueError as e:
-#                 print(f'{e}: Dataset saving falied')
-
-#         else:
-#             print(f"File alredy exists in {dir}")
-
-#     except ValueError as e:
-#         if not os.path.exists(filepath):
-#             try:
-#                 data_frame.to_csv(filepath)
-#                 print('Dataset saved successfully!')
-#                 return data_frame
-#             except ValueError as e:
-#                 print(f'{e}: Dataset saving falied')
-
-#         else:
-#             print(f"File alredy exists in {dir}")
-#     return data_frame
-
 
 def pre_process_Weather_Bit(URL) -> pd.DataFrame:
     """Preprocesses and potentially saves the weather data.
@@ -305,25 +208,6 @@ def backward_scaler(predicts):
   unreal_X = scale.inverse(predicts)
   return unreal_X
 
-# def window_make(df):
-#   df_as_np = df.to_numpy()
-#   window_size = len(df.columns) + 1
-
-#   X=[]
-#   y=[]
-
-#   for i in range(len(df_as_np) - window_size):
-#     row = [a for a in df_as_np[i : i + window_size]]
-#     X.append(row)
-
-#     label = [df_as_np[i + window_size][0],
-#              df_as_np[i + window_size][1],
-#              df_as_np[i + window_size][2],
-#              df_as_np[i + window_size][3],
-#              df_as_np[i + window_size][4]]
-#     y.append(label)
-
-#   return np.array(X), np.array(y)
 
 def window_make(df):
   df_as_np = df.to_numpy()
