@@ -52,20 +52,6 @@ def load_grib2() -> pd.DataFrame:
             pass
     return new_grib_dataframe
 
-# def load_grib2():
-#     """
-#     This function loads a grib2 file and combines DataArrays based on specified keys.
-#     """
-#     try:
-#         grib_ds = open_dataset(grib_file,
-#                                 engine='cfgrib',
-#                                 backend_kwargs={'filter_by_keys': {'typeOfLevel': 'surface'}}
-#                                 )
-#         return grib_ds
-#     except KeyError as e:
-#         print(f"{e}: The given parameter key is not present in the dataset.")
-#         pass
-# print(load_grib2())
 
 def dataF() -> pd.DataFrame:
     """
