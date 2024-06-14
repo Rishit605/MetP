@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from matplotlib.lines import Line2D
 import plotly.graph_objects as go
+import plotly.figure_factory as ff
 
 import xarray as xr
 import cartopy.crs as ccrs
@@ -221,7 +222,7 @@ def meteogram_generator(data):
     return plt
 
 
-## Aerial Representation Image Generator
+# Aerial Representation Image Generator
 def aerial_representation(select_variable):
     # Step 3:  Visualization with Cartopy
     projection = ccrs.PlateCarree()  
@@ -257,3 +258,95 @@ def aerial_representation(select_variable):
     plt.title('Aerial Temperature Representation') 
     
     return plt
+
+
+
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+
+def interactive_meteogram(data):
+    # Convert to datetime format
+    data['date'] = pd.to_datetime(data['Datetime'])
+
+    # Create figure object
+    fig = go.Figure()
+
+    # Wind Direction Cone Plot
+    fig.add_trace(go.Cone(
+        x=data['date'], 
+        y=data['Wind Direction (degrees)'],
+        u=data['Wind Speed (m/s)'] * np.cos(np.radians(data['Wind Direction (degrees)'])), 
+        v=data['Wind Speed (m/s)'] * np.sin(np.radians(data['Wind Direction (degrees)'])),
+        anchor='tip',  # Make cones point towards direction
+        sizemode='absolute',
+        sizeref=0.15  # Adjust this value to scale the size of the cones
+    ))
+
+    # Other Traces
+    fig.add_trace(go.Scatter(
+        x=data['date'],
+        y=data['Temperature (°C)'],
+        fill='tozeroy', 
+        text=data['Temperature (°C)'],
+        name='Temperature (°C)',
+        mode='lines+markers',
+        marker=dict(size=3, color='#EE4E4E'),
+        line=dict(width=2, color='#EE4E4E', shape='spline')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=data['date'],
+        y=data['Humidity (%)'], 
+        fill='tozeroy', 
+        text=data['Humidity (%)'],
+        name='Humidity (%)',
+        mode='lines+markers',
+        marker=dict(size=3, color='#F6EEC9'),
+        line=dict(width=2, color='#F6EEC9', shape='spline')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=data['date'],
+        y=data['Wind Speed (m/s)'], 
+        fill='tozeroy', 
+        text=data['Wind Speed (m/s)'],
+        name='Wind Speed (m/s)',
+        mode='lines+markers',
+        marker=dict(size=3, color='#A1DD70'),
+        line=dict(width=2, color='#A1DD70', shape='spline')
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=data['date'],
+        y=data['Precipitation (mm)'], 
+        fill='tozeroy', 
+        text=data['Precipitation (mm)'],
+        name='Precipitation (mm)',
+        mode='lines+markers',
+        marker=dict(size=5, color='#799351'),
+        line=dict(width=2, color='#799351', shape='spline')
+    ))
+
+
+    # Configure layout
+    fig.update_layout(
+        title='Interactive Meteogram',
+        yaxis=dict(
+            title='Values',
+            side='left'
+        ),
+        xaxis=dict(
+            title='Date'
+        ),
+        hovermode='x',
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        )
+    )
+
+    return fig

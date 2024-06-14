@@ -190,7 +190,8 @@ if page_to_show == "Parameters":
         st.divider()
         st.header("Meterogram")
 
-        st.pyplot(meteogram_generator(curr_24_data))
+        # st.pyplot(meteogram_generator(curr_24_data))
+        st.plotly_chart(interactive_meteogram(curr_24_data))
 
 
 # Aerial representation page (example using a placeholder image)

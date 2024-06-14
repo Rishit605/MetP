@@ -183,26 +183,52 @@
 # st.markdown("<h3 style='text-align: left;'>AERIAL REPRESENTATION</h3>", unsafe_allow_html=True)
 # st.image("aerial_image.png", caption="Images", use_column_width=True)
 
-import pandas as pd
+# # First, import the elements you need
+# from streamlit_elements import elements, mui, html
+
 import streamlit as st
+import pandas as pd
+import json
 
-data_df = pd.DataFrame(
-    {
-        "apps": [
-            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/5435b8cb-6c6c-490b-9608-799b543655d3/Home_Page.png",
-            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/ef9a7627-13f2-47e5-8f65-3f69bb38a5c2/Home_Page.png",
-            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/31b99099-8eae-4ff8-aa89-042895ed3843/Home_Page.png",
-            "https://storage.googleapis.com/s4a-prod-share-preview/default/st_app_screenshot_image/6a399b09-241e-4ae7-a31f-7640dc1d181e/Home_Page.png",
-        ],
-    }
-)
+# Sample Weather Data (replace with your actual data)
+data = {
+    "date": pd.date_range(start="2024-06-10", end="2024-06-16", freq="H"),
+    "temperature": [28, 29, 31, 33, 35, 34, 32, 30, 29, 28, 27, 26, 25, 26, 28, 30, 32, 34, 36, 37, 35, 33, 32, 31] * 7,
+    "precipitation": [0, 0, 0.2, 0.5, 1.2, 0.8, 0.3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0] * 7,
+    "wind_speed": [5, 6, 8, 10, 12, 11, 9, 7, 6, 5, 4, 3, 2, 3, 4, 5, 6, 7, 8, 9, 10, 8, 7, 6] * 7,
+}
+df = pd.DataFrame(data)
 
-st.data_editor(
-    data_df,
-    column_config={
-        "apps": st.column_config.ImageColumn(
-            label="Preview Image", width="large", help="Streamlit app preview screenshots"
-        )
-    },
-    hide_index=True,
-)
+
+st.title("Weather Meteogram - Bhopal, India")
+
+# Generate data for Nivo chart
+nivo_data = df.to_dict(orient='records')
+
+# Nivo chart configuration in JSON format
+nivo_props = {
+    "data": nivo_data,
+    "xScale": {"type": "time", "format": "%Y-%m-%d"},
+    "xFormat": "time:%Y-%m-%d",
+    "yScale": {"type": "linear", "min": "auto", "max": "auto"},
+    "axisBottom": {"format": "%b %d"},
+    "axisLeft": {"orient": "left", "tickSize": 5, "tickPadding": 5, "tickRotation": 0},
+    "useMesh": True,
+}
+
+# HTML code for embedding Nivo chart (adjust width and height as needed)
+html_code = f"""
+<div id="chart"></div>
+<script type="text/javascript">
+  // Load Nivo library (you'll need to include the actual script tags here)
+  
+  const data = {json.dumps(nivo_data)};
+  const props = {json.dumps(nivo_props)};
+
+  // Create the Nivo chart
+  nivo.render(document.getElementById('chart'), nivo.LineChart, data, props);
+</script>
+"""
+
+# Display the chart in Streamlit
+st.components.v1.html(html_code, width=800, height=400)
