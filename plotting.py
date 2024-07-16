@@ -350,3 +350,10 @@ def interactive_meteogram(data):
     )
 
     return fig
+
+
+def history_plotting(train, test):
+    plt.plot(train_hist, scalex=True, label='Training Loss')
+    plt.plot(test_hist, label='Validation Loss')
+    plt.legend()
+    plt.show()

@@ -1,4 +1,5 @@
 import os
+import sys
 import csv
 import json
 import requests
@@ -8,8 +9,10 @@ import numpy as np
 
 from sklearn.preprocessing import MinMaxScaler
 
-from ..utils.weatherapi import api_call_Open_weather_Map
-from ..utils.helpers import extract_value_or_zero, calculate_relative_humidity
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from utils.weatherapi import api_call_Open_weather_Map
+from utils.helpers import extract_value_or_zero, calculate_relative_humidity
 
 
 dir = 'C:\\Projs\\COde\\\Meteo\\\MetP\\data\\'
@@ -171,64 +174,169 @@ def pre_process_OpenWeather_map(URL) -> pd.DataFrame:
     return data_frame_OWM
 
 
-## Preprocessing 
+## Preprocessing
 
-def forward_scaler(x_features, y_targets=None) -> np.array:
+def CyclicTimeTransform(data: pd.DataFrame) -> pd.DataFrame:    
+    day = 60 * 60 * 24
+    year = 365.2425 * day
+    data_df = data.copy()
+
+    data_df['Seconds'] = data_df.index.map(pd.Timestamp.timestamp)
+    
+    data_df['Hour sin'] = np.sin(2 * np.pi * data_df.index.hour / 24)
+    data_df['Hour cos']= np.cos(2 * np.pi * data_df.index.hour / 24)
+
+    data_df['Day sin'] = np.sin(2 * np.pi * data_df.index.day / 7)
+    data_df['Day cos'] = np.cos(2 * np.pi * data_df.index.day / 7)
+
+    data_df['Month sin'] = np.sin(2 * np.pi * data_df.index.month / 12)
+    data_df['Month sin'] = np.cos(2 * np.pi * data_df.index.month / 12)
+
+    # data_df['Day sin'] = np.sin(data_df['Seconds'] * (2 * np.pi / day))
+    # data_df['Day cos'] = np.cos(data_df['Seconds'] * (2 * np.pi / day)) 
+
+    # data_df['Year sin'] = np.sin(data_df['Seconds'] * (2 * np.pi / day))
+    # data_df['Year cos'] = np.cos(data_df['Seconds'] * (2 * np.pi / day)) 
+    data_df = data_df.drop('Seconds', axis=1)
+    return data_df
+
+def forward_scaler(dataSet: pd.DataFrame):
     """
-    Scales the dataset into (0,1) range for standariztion for the model.
+    Takes a DataFrame and returns a scaled and normalized DataFrame.
+
+    Args:
+        dataSet (pd.DataFrame): Input DataFrame with numerical columns.
 
     Returns:
-        scaled_X: Returns the scaled features of the dataset in the (0,1) range.
-        scaled_y: Returns the scaled target(s) of the dataset in the (0,1) range.
+        pd.DataFrame: Scaled and normalized DataFrame.
     """
     scale = MinMaxScaler(feature_range=(0,1))
 
-    #   _X = window_make(pre_process())[0]
-    #   _y = window_make(pre_process())[1]
-        # _X = pre_process()
+    scaled_data = scale.fit_transform(dataSet)
+    scaled_dataframe = pd.DataFrame(scaled_data, columns=dataSet.columns, index=dataSet.index)
+    return scale, scaled_dataframe
 
-    if y_targets is None:
-        scaled_X = scale.fit_transform(x_features)
-        return scaled_X
+
+def backward_scaler(predicts: np.ndarray, scaler, scaled_DataF: pd.DataFrame,  target_columns,  dataSet: pd.DataFrame, testset=True):
+    """
+    Reiterates the scaler and performs scaling inversion to get the real values form the sclaed predictions.
+    
+    Returns:    
+        unreal_X = Returns the real values of the predictions by performing the inverse function.
+    """
+    # Check if the shapes match
+    if scaled_predictions.shape[1] != original_df.shape[1]:
+        raise ValueError("Shapes of scaled predictions and original DataFrame do not match.")
+        print("Working on Reshaping.")
+
+        dummies = np.zeros((predicts, training_data.shape[-1] + 1))
+        dummies[:, 0] = predicts
+
+        dummies_df = pd.DataFrame(dummies)
+        
+        if testset is True:
+            dummies_df = pd.DataFrame(
+                scaler.inverse_transform(dummies_df),
+                index=scaled_DataF[train_size + valid_size:].index[:(len(scaled_DataF))]
+            )
+
+            forecast_df = pd.DataFrame({
+                'date': scaled_DataF[train_size + valid_size:].index[:(len(scaled_DataF))],
+                'predictions': dummies_df[(len(target_columns))],
+                'acutals': dataSet[train_size + valid:][target_columns][:(len(target_columns))]
+            })
+            
+            forecast_df = forecast_df.set_index('date')
+            return forecast_df
+            
+        else:
+            dummies_df = pd.DataFrame(
+                scaler.inverse_transfrom(dummies_df),
+                index=predictions_dates
+            )
+
+            forecast_df = pd.DataFrame({
+                'date': predictions_dates,
+                'predictions': dummies_df[(len(target_columns))]
+            })
+
+            forecast_df = forecast_df.set_index('date')
+            return forecast_df
     else:
-        scaled_X = scale.fit_transform(x_features)
-        scaled_y = scale.fit_transform(y_targets)
-        return scaled_X, scaled_y
+        unreal_X = scaler.inverse_transfrom(predicts)
+        return unreal_X
 
 
-def backward_scaler(predicts):
-  """
-  Reiterates the scaler and performs scaling inversion to get the real values form the sclaed predictions.
-  
-  Returns:
-    unreal_X = Returns the real values of the predictions by performing the inverse function.
-  """
-  scale = MinMaxScaler(feature_range=(0,1))
+def SingleStepSingleVARSampler(df, window, target_column):
+    """
+    For Generating SingleStep Single Target variable sequence for training.
+    """
 
-  unreal_X = scale.inverse(predicts)
-  return unreal_X
+    # Convert DataFrame to NumPy array for faster operations
+    features_array = df.to_numpy()
+    target_array = df[target_column].to_numpy()
 
+    # Number of samples we can create
+    num_samples = len(df) - window
 
-def window_make(df):
-  df_as_np = df.to_numpy()
-  window_size = len(df.columns) + 1
+    # Initialize empty arrays for X and Y
+    X = np.zeros((num_samples, window, features_array.shape[1]))
+    Y = np.zeros(num_samples)
 
-  X = []
-  y = []
+    for i in range(num_samples):
+        X[i] = features_array[i:i+window]
+        Y[i] = target_array[i + window]
 
-  # Early termination to avoid out-of-bounds access
-  for i in range(len(df_as_np) - window_size):
-    row = [a for a in df_as_np[i : i + window_size]]
-    X.append(row)
+    return X, Y
 
-    label = [df_as_np[i + window_size][j] for j in range(window_size - 1)]
-    y.append(label)
+def SingleStepMultiVARSampler(df, window, target_columns):
+    """
+    For Generating SingleStep Multi Target variable sequence for training.
+    """
 
-  return np.array(X), np.array(y)
+    # Convert DataFrame to NumPy array for faster operations
+    features_array = df.to_numpy()
+    target_array = df[target_columns].to_numpy()
+
+    # Number of samples we can create
+    num_samples = len(df) - window
+
+    # Initialize empty arrays for X and Y
+    X = np.zeros((num_samples, window, features_array.shape[1]))
+    Y = np.zeros((num_samples, len(target_columns)))
+
+    for i in range(num_samples):
+        X[i] = features_array[i:i+window]
+        Y[i] = target_array[i + window]
+
+    return X, Y
+
+def SingleStepMultiVARS_SeperateSampler(df_X, df_Y, window, target_columns):
+    """
+    For Generating SingleStep Multi Target variable sequence for training.
+    """
+
+    # Convert DataFrame to NumPy array for faster operations
+    features_array = df_X.to_numpy()
+    target_array = df_Y[target_columns].to_numpy()
+
+    # Number of samples we can create
+    num_samples = len(df_X) - window
+
+    # Initialize empty arrays for X and Y
+    X = np.zeros((num_samples, window, features_array.shape[1]))
+    Y = np.zeros((num_samples, len(target_columns)))
+
+    for i in range(num_samples):
+        X[i] = features_array[i:i+window]
+        Y[i] = target_array[i + window]
+
+    return X, Y
+    
 
 ## Splitting the dataset
 
-def ret_split_data(data: pd.DataFrame):
+def ret_split_data(data: pd.DataFrame, X_Set, Y_Set, SIZE=0.8):
     """
     This function performs the dataset splitting accorin to the dataset size, splitting it into training set, validation set, and test set.
 
@@ -251,32 +359,31 @@ def ret_split_data(data: pd.DataFrame):
         y1_test: Returns an array of the test set of the target(s).
     """
 
-    X1, y1 = window_make(data)
-
-    train_split = int(len(X1) * (70 / 100))
+    train_split = int(len(data) * SIZE)
 
     if len(data) < 10000: 
-        valid_split = int(len(X1) - train_split)
+        valid_split = int(len(data) - train_split)
 
         # Splitting the Dataset
-        X1_train, y1_train = X1[:train_split], y1[:train_split]
-        X1_val, y1_val = X1[train_split:valid_split], y1[train_split:valid_split]
+        X1_train, y1_train = X_Set[:train_split], Y_Set[:train_split]
+        X1_val, y1_val = X_Set[train_split:train_split + valid_split], Y_Set[train_split:train_split + valid_split]
         return X1_train, y1_train, X1_val, y1_val
 
 
     else:
-        valid_split = int(len(X1) - train_split)
-        test_split = int(valid_split - (50 / 100))
+        valid_split = int(len(data) * (1.0 - SIZE))
 
         # Splitting the Dataset
-        X1_train, y1_train = X1[:train_split], y1[:train_split]
-        X1_val, y1_val = X1[train_split:valid_split], y1[train_split:valid_split]
-        X1_test, y1_test = X1[valid_split:test_split], y1[valid_split:test_split]
+        X1_train, y1_train = X_Set[:train_split], Y_Set[:train_split]
+        X1_val, y1_val = X_Set[train_split:train_split + valid_split], Y_Set[train_split:train_split + valid_split]
+        X1_test, y1_test = X_Set[train_split + valid_split:], Y_Set[train_split + valid_split:]
         return X1_train, y1_train, X1_val, y1_val, X1_test, y1_test
         
 
-## Standardization Function
+## Dataset Creation
 
+
+## Standardization Function
 def std_fn(data: np.array, idx):
     """
     This function standardizes and calculates the mean and standard deviation of the specified channel(feature) across all timesteps in the data array.
