@@ -21,30 +21,63 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from model.pytorch_model import LSTMModel, Early_Stopping, ModelCheckpoint, EnhancedLSTMModel
+from model.pytorch_model import (
+    LSTMModel,
+    Early_Stopping,
+    ModelCheckpoint,
+    EnhancedLSTMModel,
+    )
 from utils.weatherapi import openMeteo_API
-from preprocessing.data_pipeline import forward_scaler, SingleStepMultiVARSampler, ret_split_data, CyclicTimeTransform
+from preprocessing.data_pipeline import (
+    forward_scaler,
+    SingleStepMultiVARS_SeperateSampler,
+    CyclicTimeTransform,
+    )
 
 
-df = openMeteo_API(StartDate="2005-01-01", EndDate="2024-07-13")
+df = openMeteo_API(StartDate="2005-01-01", EndDate="2024-07-15") # Calling the Data
+
+# Feature engineering
+df = df.drop(columns=['weather_code', 'cloud_cover_low', 'cloud_cover_high', 'wind_direction_10m'])
 df = CyclicTimeTransform(df)
-Scl, scaled_df = forward_scaler(dataSet=df)
+df['day_of_year'] = pd.to_datetime(df.index).dayofyear
+df['month'] = pd.to_datetime(df.index).month
 
-window_size = 168
-target_column = ["temperature_2m", "wind_speed_10m", "dew_point_2m"]
+# Defining the Window size and Target Predictions
+window_size = 7 * 24
+target_column = df.columns[:8]
 
-X, Y = SingleStepMultiVARSampler(scaled_df, window_size, target_column)
-X, Y = torch.tensor(X, dtype=torch.float32), torch.tensor(Y, dtype=torch.float32)
+# Defining the Input and Output Features
+X1 = df
+Y1 = df[target_column]
 
-X_train, y_train, X_val, y_val, _, _ = ret_split_data(scaled_df, X, Y, SIZE=0.8)
-X_train, y_train, X_val, y_val, _, _ = X_train.to("cuda"), y_train.to("cuda"), X_val.to("cuda"), y_val.to("cuda"), _, _
+# Scaling the Dataset
+scaler_X, scaled_X = forward_scaler(dataSet=X1)
+scaler_Y, scaled_Y = forward_scaler(dataSet=Y1)
+
+# Creting the Window Sequences
+X, Y = SingleStepMultiVARS_SeperateSampler(scaled_X, scaled_Y, window_size, target_column)
+X, Y = np.array(X), np.array(Y)
 
 
-BATCH_SIZE = 32
+# Splitting the dataset
+train_size = int(len(X) * 0.7)
+val_size = int(len(X) * 0.15)
+test_size = len(X) - train_size - val_size
 
-train_tensor = TensorDataset(X_train, y_train)
-valid_tensor = TensorDataset(X_val, y_val)
-# test_tensor = TensorDataset(X_test, y_test)
+X_train, y_train = X[:train_size], Y[:train_size]
+X_val, y_val = X[train_size:train_size+val_size], Y[train_size:train_size+val_size]
+X_test, y_test = X[train_size+val_size:], Y[train_size+val_size:]
+
+# X_train, y_train, X_val, y_val, X_test, y_test = X_train.to("cuda"), y_train.to("cuda"), X_val.to("cuda"), y_val.to("cuda"), X_test.to("cuda"), y_test.to("cuda")
+
+
+# Converting the dataset to Torch DataLoader format
+BATCH_SIZE = 64
+
+train_tensor = TensorDataset(torch.FloatTensor(X_train), torch.FloatTensor(y_train))
+valid_tensor = TensorDataset(torch.FloatTensor(X_val), torch.FloatTensor(y_val))
+test_tensor = TensorDataset(torch.FloatTensor(X_test), torch.FloatTensor(y_test))
 
 train_dataloader = DataLoader(
     train_tensor, 
@@ -58,11 +91,11 @@ valid_dataloader = DataLoader(
     shuffle=False
 )
 
-# test_dataloader = DataLoader(
-#     test_tensor,
-#     batch_size=BATCH_SIZE,
-#     shuffle=False
-# )
+test_dataloader = DataLoader(
+    test_tensor,
+    batch_size=BATCH_SIZE,
+    shuffle=False
+)
 
 
 ### OLD MODEL INITALIZATION AND PARAMTERS
@@ -77,7 +110,6 @@ early_stopping = Early_Stopping(patience=20, verbose=True)
 checkpoint = ModelCheckpoint(filepath=r'C:\Projs\COde\Meteo\MetP\src\model\best_lstm_model.pth', verbose=True)
 
 # Create and train the model
-# model = LSTMTimeSeriesModel(input_size=input_size, hidden_size=hidden_size, num_layers=num_layers, output_size=output_size)
 model = LSTMModel(input_size, hidden_size, num_layers, output_size, dropout_prob).to("cuda")
 criterion = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=0.0003, weight_decay=1e-5)
@@ -147,19 +179,19 @@ def training_step(model, train_dataloader, valid_dataloader, criterion, optimize
 # New training step for the new Enhanced Model.
 
 # Hyperparameters
-input_size = X.shape[2]
-hidden_size = 64
+input_size = X.shape[-1]
+hidden_size = 128
 num_layers = 4
-dropout_prob = 0.4
+dropout_prob = 0.45
 output_size = len(target_column)
 n_epochs = 20
 learning_rate = 0.001
 
 early_stopping = Early_Stopping(patience=20, verbose=True)
-checkpoint = ModelCheckpoint(filepath='best_lstm_model.pth', verbose=True)
+checkpoint = ModelCheckpoint(filepath=r'C:\Projs\COde\Meteo\MetP\src\model\new_best_lstm_model.pth', verbose=True)
 
 scaler = GradScaler()
-def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, num_epochs, early_stopping, checkpoint):
+def train_model(model, train_loader, val_loader, criterion, optimizer, lscheduler, num_epochs, early_stopping, checkpoint):
     train_losses, val_losses = [], []
     
     for epoch in range(num_epochs):
@@ -208,16 +240,16 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
 
 
 ## Validation Step for the Enhanced model.
-def validation_step():
+def test_step():
     # Evaluate on test set
-    model.load_state_dict(torch.load('best_lstm_model.pth'))
+    model.load_state_dict(torch.load(model))
     model.eval()
     test_loss = 0
     predictions = []
     actuals = []
 
     with torch.no_grad():
-        for inputs, targets in test_loader:
+        for inputs, targets in test_dataloader:
             inputs, targets = inputs.to("cuda"), targets.to("cuda")
             outputs = model(inputs)
             loss = criterion(outputs, targets)
@@ -225,7 +257,7 @@ def validation_step():
             predictions.extend(outputs.cpu().numpy())
             actuals.extend(targets.cpu().numpy())
 
-    test_loss /= len(test_loader)
+    test_loss /= len(test_dataloader)
     print(f"Test Loss: {test_loss:.4f}")
 
     # Denormalize predictions and actuals
@@ -233,12 +265,11 @@ def validation_step():
     actuals = scaler_Y.inverse_transform(np.array(actuals))
 
     # Calculate RMSE for each target variable
-    for i, col in enumerate(target_columns):
+    for i, col in enumerate(target_column):
         rmse = np.sqrt(np.mean((predictions[:, i] - actuals[:, i])**2))
         print(f"RMSE for {col}: {rmse:.4f}")
 
-
-
+    
 
 if __name__ == "__main__":
 
@@ -259,5 +290,5 @@ if __name__ == "__main__":
     optimizer = optim.Adam(model.parameters(), lr=learning_rate, weight_decay=1e-5)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10, verbose=True)
     
-    train_losses, val_losses = train_model(model, train_dataloader, valid_dataloader, criterion, optimizer, scheduler, n_epochs, early_stopping, checkpoint)
-    validation_step()
+    # train_losses, val_losses = train_model(model, train_dataloader, valid_dataloader, criterion, optimizer, scheduler, n_epochs, early_stopping, checkpoint)
+    test_step()

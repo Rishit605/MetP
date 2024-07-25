@@ -336,7 +336,7 @@ def SingleStepMultiVARS_SeperateSampler(df_X, df_Y, window, target_columns):
 
 ## Splitting the dataset
 
-def ret_split_data(data: pd.DataFrame, X_Set, Y_Set, SIZE=0.8):
+def ret_split_data(data: pd.DataFrame, X_Set, Y_Set, SIZE=0.7):
     """
     This function performs the dataset splitting accorin to the dataset size, splitting it into training set, validation set, and test set.
 
@@ -371,7 +371,7 @@ def ret_split_data(data: pd.DataFrame, X_Set, Y_Set, SIZE=0.8):
 
 
     else:
-        valid_split = int(len(data) * (1.0 - SIZE))
+        valid_split = int(len(data) * 0.2)
 
         # Splitting the Dataset
         X1_train, y1_train = X_Set[:train_split], Y_Set[:train_split]
