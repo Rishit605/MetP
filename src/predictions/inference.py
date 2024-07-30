@@ -19,47 +19,36 @@ import string
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from model.pytorch_model import LSTMModel, Early_Stopping, ModelCheckpoint, EnhancedLSTMModel
-from utils.weatherapi import openMeteo_API
-from preprocessing.data_pipeline import forward_scaler, SingleStepMultiVARSampler, ret_split_data, backward_scaler
+from model.pytorch_model import (
+    Early_Stopping,
+    ModelCheckpoint,
+    EnhancedLSTMModel,
+    )
 
-from training.training2 import (
+from utils.weatherapi import openMeteo_API
+from preprocessing.data_pipeline import forward_scaler, backward_scaler
+
+from training.torch_training2 import (
     input_size, output_size, window_size,
     num_layers, hidden_size, dropout_prob,
-    scaler_X, scaler_Y, df,
-    target_column, history_plotting,
-    X_test, X,
+    scaler_X, scaler_Y, X1, 
+    X, target_column,
     )
 
 
-model_path = r'C:\Projs\COde\Meteo\MetP\src\training\best_lstm_model.pth'
-model = EnhancedLSTMModel(input_size, hidden_size, num_layers, output_size, dropout_prob).to("cuda")
-model.load_state_dict(torch.load(model_path))
-
-# # Function for inference on the 
-# def make_predictions(model, data_loader, scaler):
-#     """
-#     Function to evalute the model on the Test set after training
-#     """
-#     model.eval()
-#     predictions = []
-#     with torch.no_grad():
-#         for inputs, _ in data_loader:
-#             inputs = inputs.to("cuda")
-#             outputs = model(inputs)
-#             predictions.extend(outputs.cpu().numpy())
-#     return scaler.inverse_transform(np.array(predictions))
-
-# # Predictions on test set
-# test_predictions = make_predictions(model, test_loader, scaler_Y)
-# test_actuals = scaler_Y.inverse_transform(test_y)
+model_path = 'C:/Projs/COde/Meteo/MetP/src/model/best_lstm_model.pth'
+try:
+    model = EnhancedLSTMModel(input_size, hidden_size, num_layers, output_size, dropout_prob).to("cuda")
+    model.load_state_dict(torch.load(model_path))
+    print("Model loaded successfully!")
+except Exception as e:
+    print(f"Error loading model: {e}")
 
 # Future forecasting
 def future_forecast(model, last_sequence, scaler_X, scaler_Y, num_days, target_columns):
     model.eval()
     current_sequence = last_sequence.copy()
-    forecasts = []
-    # print(torch.FloatTensor(current_sequence))    
+    forecasts = [] 
     with torch.no_grad():
         for _ in range(num_days * 24):
             inputs = torch.FloatTensor(current_sequence).unsqueeze(0).to("cuda")
@@ -85,8 +74,10 @@ if __name__ == "__main__":
     future_predictions = future_forecast(model, last_sequence, scaler_X, scaler_Y, num_days, target_column)
 
     # Create a date range for future predictions
-    last_date = pd.to_datetime(df.index[-1])
+    last_date = pd.to_datetime(X1.index[-1])
     future_dates = pd.date_range(start=last_date + pd.Timedelta(hours=1), periods=(num_days * 24), freq='h')
 
     future_df = pd.DataFrame(future_predictions, columns=target_column, index=future_dates)
-    print(future_df)
+    future_df.to_csv('forecasts_after27072024.csv')
+    # print(future_df)
+    print()

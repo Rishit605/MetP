@@ -208,7 +208,7 @@ if __name__ == "__main__":
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=10)
     
     early_stopping = Early_Stopping(patience=20, verbose=True)
-    checkpoint = ModelCheckpoint(filepath=r'C:/Projs/COde/Meteo/MetP/src/model/best_lstm_model.pth', verbose=True)
+    checkpoint = ModelCheckpoint(filepath='C:/Projs/COde/Meteo/MetP/src/model/best_lstm_model.pth', verbose=True)
 
     train_losses, val_losses = train_model(model, train_dataloader, valid_dataloader, criterion, optimizer, scheduler, n_epochs, early_stopping, checkpoint)
     history_plotting(train_losses, val_losses)
