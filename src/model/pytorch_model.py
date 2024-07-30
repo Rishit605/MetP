@@ -36,7 +36,7 @@ class LSTMModel(nn.Module):
         out = self.fc(self.dropout(out[:, -1, :]))
         return out
 
-# Enhanced LSTM Model with Dropout and Regulizers
+# Enhanced LSTM Model With Dropout and Regulizers
 class EnhancedLSTMModel(nn.Module):
     def __init__(self, input_size, hidden_size, num_layers, output_size, dropout_prob=0.5):
         super(EnhancedLSTMModel, self).__init__()
@@ -59,8 +59,8 @@ class EnhancedLSTMModel(nn.Module):
         return out
 
 
-## TRAINING HYPERPARAMETERS
 
+## TRAINING HYPERPARAMETERS
 class Early_Stopping:
     """  
     Early Stopping Callback function

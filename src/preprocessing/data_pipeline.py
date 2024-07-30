@@ -190,13 +190,11 @@ def CyclicTimeTransform(data: pd.DataFrame) -> pd.DataFrame:
     data_df['Day cos'] = np.cos(2 * np.pi * data_df.index.day / 7)
 
     data_df['Month sin'] = np.sin(2 * np.pi * data_df.index.month / 12)
-    data_df['Month sin'] = np.cos(2 * np.pi * data_df.index.month / 12)
+    data_df['Month cos'] = np.cos(2 * np.pi * data_df.index.month / 12)
 
-    # data_df['Day sin'] = np.sin(data_df['Seconds'] * (2 * np.pi / day))
-    # data_df['Day cos'] = np.cos(data_df['Seconds'] * (2 * np.pi / day)) 
+    data_df['day_of_year'] = data_df.index.dayofyear
+    data_df['month'] = data_df.index.month
 
-    # data_df['Year sin'] = np.sin(data_df['Seconds'] * (2 * np.pi / day))
-    # data_df['Year cos'] = np.cos(data_df['Seconds'] * (2 * np.pi / day)) 
     data_df = data_df.drop('Seconds', axis=1)
     return data_df
 
@@ -332,6 +330,13 @@ def SingleStepMultiVARS_SeperateSampler(df_X, df_Y, window, target_columns):
         Y[i] = target_array[i + window]
 
     return X, Y
+
+def Simple_create_sequences(X, y, time_steps):
+    Xs, ys = [], []
+    for i in range(len(X) - time_steps):
+        Xs.append(X.iloc[i:(i + time_steps)].values)
+        ys.append(y.iloc[i + time_steps].values)
+    return np.array(Xs), np.array(ys)
     
 
 ## Splitting the dataset
