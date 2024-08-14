@@ -5,7 +5,7 @@ from PIL import Image
 import plotly.express as px
 from plotly.graph_objects import Figure
 
-from plotting import *
+from src.utils.plotting import *
 from src.utils.helpers import get_dates, meanT, meanW, meanH
 from src.preprocessing.data_pipeline import pre_process_OpenWeather_map
 from src.utils.weatherapi import cities_url

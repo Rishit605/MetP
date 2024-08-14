@@ -149,7 +149,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, lschedule
         print(f"Epoch {epoch+1}/{num_epochs}, Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}")
         
         scheduler.step(val_loss)
-        scheduler.get_last_lr()[0]
+        print(scheduler.get_last_lr()[0])
         early_stopping(val_loss)
         checkpoint(model, val_loss)
         
