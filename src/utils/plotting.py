@@ -19,29 +19,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from utils.helpers import get_dates
 
-# ## PARAMETERS
-# # Read CSV data for each city
-# bhopal_data_df = pd.read_csv('data/hr_data_main_citites/bhopal_weather_hourly_10_days.csv')
-# bangalore_data_df = pd.read_csv('data/hr_data_main_citites/Bengaluru_weather_hourly_10_days.csv')
-# gandhi_nagar_data_df = pd.read_csv('data/hr_data_main_citites/gandhinagar_weather_hourly_10_days.csv')
-# srinagar_data_df = pd.read_csv('data/hr_data_main_citites/srinagar_weather_hourly_10_days.csv')
-
-# # Combine DataFrames into a dictionary
-# cities_data = {
-#     "AirField#1": bhopal_data_df,
-#     "AirField#2": bangalore_data_df,
-#     "AirField#3": gandhi_nagar_data_df,
-#     "AirField#4": srinagar_data_df
-# }
-
-
 ## Line plots
 def px_line_plots(dataframe, variable: str):
     fig = px.line(data_frame=dataframe,
-                  x=pd.Series(dataframe["Datetime"]), y=pd.Series(dataframe[variable]),
+                  x=pd.Series(dataframe.index), y=pd.Series(dataframe[variable]),
                   title=variable, markers=True)
 
-    fig.add_bar(x=pd.Series(dataframe["Datetime"]), y=pd.Series(dataframe[variable]), showlegend=False, name=variable, text=round(pd.Series(dataframe[variable]), 2))
+    fig.add_bar(x=pd.Series(dataframe.index), y=pd.Series(dataframe[variable]), showlegend=False, name=variable, text=round(pd.Series(dataframe[variable]), 2))
 
     fig.update_traces(textfont_size=16, marker_color='rgb(158,202,225)', marker_line_color='rgb(0,48,107)',
                   marker_line_width=2.5, opacity=0.45)
@@ -108,17 +92,17 @@ import datetime
 def multi_bar(cities_data: dict, variable: str):
 
     # Preprocessing: Convert 'Datetime' column to datetime format
-    for city_data in cities_data.values():
-        city_data['Datetime'] = pd.to_datetime(city_data['Datetime'])
+    # for city_data in cities_data.values():
+    #     city_data['Datetime'] = pd.to_datetime(city_data['Datetime'])
 
     # Filter Data for the Last 24 Hours (for reference in the range selector)
     for city_name, city_data in cities_data.items():
         cities_data[city_name] = city_data.loc[
-            (city_data['Datetime'] >= (pd.to_datetime(get_dates()[0]))) & (city_data['Datetime'] < (pd.to_datetime(get_dates()[1])))
+            (city_data.index >= (pd.to_datetime(get_dates()[0]))) & (city_data.index < (pd.to_datetime(get_dates()[1])))
         ]
 
     # Calculate default start and end time (6-hour window)
-    end_time = max(cities_data['AirField#1']['Datetime'])  # Assume Bhopal has the latest timestamp
+    end_time = max(cities_data['AirField#1'].index)  # Assume Bhopal has the latest timestamp
     start_time = end_time - datetime.timedelta(hours=6)
 
     # Create Plotly figure
@@ -129,7 +113,7 @@ def multi_bar(cities_data: dict, variable: str):
         fig.add_trace(
             go.Bar(
                 name=city_name,
-                x=city_data['Datetime'],
+                x=city_data.index,
                 y=city_data[variable],
                 text=round(city_data[variable], 2),  # Display rounded values as text
             )
@@ -271,15 +255,15 @@ import pandas as pd
 import numpy as np
 
 def interactive_meteogram(data):
-    # Convert to datetime format
-    data['date'] = pd.to_datetime(data['Datetime'])
+    # # Convert to datetime format
+    # data['date'] = pd.to_datetime(data['Datetime'])
 
     # Create figure object
     fig = go.Figure()
 
     # Wind Direction Cone Plot
     fig.add_trace(go.Cone(
-        x=data['date'], 
+        x=data.index, 
         y=data['Wind Direction (degrees)'],
         u=data['Wind Speed (m/s)'] * np.cos(np.radians(data['Wind Direction (degrees)'])), 
         v=data['Wind Speed (m/s)'] * np.sin(np.radians(data['Wind Direction (degrees)'])),
@@ -290,7 +274,7 @@ def interactive_meteogram(data):
 
     # Other Traces
     fig.add_trace(go.Scatter(
-        x=data['date'],
+        x=data.index,
         y=data['Temperature (°C)'],
         fill='tozeroy', 
         text=data['Temperature (°C)'],
@@ -301,10 +285,10 @@ def interactive_meteogram(data):
     ))
 
     fig.add_trace(go.Scatter(
-        x=data['date'],
-        y=data['Humidity (%)'], 
+        x=data.index,
+        y=data['Relative Humidity (%)'], 
         fill='tozeroy', 
-        text=data['Humidity (%)'],
+        text=data['Relative Humidity (%)'],
         name='Humidity (%)',
         mode='lines+markers',
         marker=dict(size=3, color='#F6EEC9'),
@@ -312,7 +296,7 @@ def interactive_meteogram(data):
     ))
 
     fig.add_trace(go.Scatter(
-        x=data['date'],
+        x=data.index,
         y=data['Wind Speed (m/s)'], 
         fill='tozeroy', 
         text=data['Wind Speed (m/s)'],
@@ -323,7 +307,7 @@ def interactive_meteogram(data):
     ))
 
     fig.add_trace(go.Scatter(
-        x=data['date'],
+        x=data.index,
         y=data['Precipitation (mm)'], 
         fill='tozeroy', 
         text=data['Precipitation (mm)'],

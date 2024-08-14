@@ -75,16 +75,15 @@ def generate_nearby_coordinates(latitude, longitude, distance_range_km):
 import time
 import calendar
 import datetime
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 
 def get_dates():
-    today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today = datetime.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0)
     next_day = today + timedelta(days=1)
     second_day = (today + timedelta(days=2)).replace(hour=0, minute=0, second=0)
     third_day = (today + timedelta(days=2)).replace(hour=23, minute=0, second=0)
     return today, next_day, second_day, third_day
-
 	
 import pandas as pd
 
@@ -113,8 +112,8 @@ def meanH(dataa: pd.DataFrame):
     """
     Retuens the mean 
     """
-    mean_h = mean_and_delta(dataa['Humidity (%)'])[0]
-    delta_h = mean_and_delta(dataa['Humidity (%)'])[1]
+    mean_h = mean_and_delta(dataa['Relative Humidity (%)'])[0]
+    delta_h = mean_and_delta(dataa['Relative Humidity (%)'])[1]
     return mean_h, delta_h
 
 
