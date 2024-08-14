@@ -7,14 +7,13 @@ from plotly.graph_objects import Figure
 
 from src.utils.plotting import *
 from src.utils.helpers import get_dates, meanT, meanW, meanH
-from src.preprocessing.data_pipeline import pre_process_OpenWeather_map
-from src.utils.weatherapi import cities_url
+from src.utils.weatherapi import cities_url, openMeteo_forecast_data_API
 
 # Read CSV data for each city
-bhopal_data_df = pre_process_OpenWeather_map(cities_url['Bhopal_URL'])
-bangalore_data_df = pre_process_OpenWeather_map(cities_url['Banglore_URL'])
-gandhi_nagar_data_df = pre_process_OpenWeather_map(cities_url['GandhiNagar_URL'])
-srinagar_data_df = pre_process_OpenWeather_map(cities_url['Srinagar_URL'])
+bhopal_data_df = openMeteo_forecast_data_API(cities_url['Bhopal_URL'][0], cities_url['Bhopal_URL'][1])
+bangalore_data_df = openMeteo_forecast_data_API(cities_url['Banglore_URL'][0], cities_url['Banglore_URL'][1])
+gandhi_nagar_data_df = openMeteo_forecast_data_API(cities_url['GandhiNagar_URL'][0], cities_url['GandhiNagar_URL'][1])
+srinagar_data_df = openMeteo_forecast_data_API(cities_url['Srinagar_URL'][0], cities_url['GandhiNagar_URL'][1])
 
 # Combine DataFrames into a dictionary
 cities_data = {
@@ -25,21 +24,18 @@ cities_data = {
 }
 
 for i, x in cities_data.items():
-    x['Datetime'] = pd.to_datetime(x['Datetime'])
+    x.rename(columns={'temperature_2m': 'Temperature (°C)', 'relative_humidity_2m': 'Relative Humidity (%)', 'wind_gusts_10m': 'Wind Gust (m/s)', 'wind_speed_10m': 'Wind Speed (m/s)', 'wind_direction_10m':'Wind Direction (degrees)', 'cloud_cover':'Cloud Coverage (%)', 'rain': 'Precipitation (mm)', 'precipitation_probability': 'Precipitation Probability (%)'}, inplace=True)
 
 # Function to fetch weather data for a specific city
 def get_weather_data(city) -> pd.DataFrame:
     city_data = cities_data[city]
     return city_data  # Assuming the first row represents current data
 
-
 #Layout
 st.set_page_config(
     page_title="EWF",
     layout="wide",
     initial_sidebar_state="expanded")
-
-
 
 # Streamlit app layout
 st.title("Weather Forecast Dashboard")
@@ -48,27 +44,27 @@ st.title("Weather Forecast Dashboard")
 selected_city = st.selectbox("Select City:", list(cities_data.keys()))
 
 # Fetch weather data for the selected city
-weather_data = get_weather_data(selected_city)
-# st.write(weather_data['Datetime'])
-# weather_data = weather_data.iloc[:, 1:]
+weather_data = get_weather_data(selected_city) 
+
+# # Renamning the Columns for preset names
+# data_frame_OWM.rename(columns={'temperature_2m': 'Temperature (°C)', 'relative_humidity_2m': 'Relavtive Humidity (%)', 'wind_gusts_10m': 'Wind Gust (m/s)', 'wind_speed_10m': 'Wind Speed (m/s)', 'wind_direction_10m':'Wind Direction (degrees)', 'cloud_cover':'Cloud Coverage (%)', 'rain': 'Precipitation (mm)', 'precipitation_probability': 'Precipitation Probability (%)'}, inplace=True)
 
 # Getting the hour data
+start_date, next_day, second_day, third_day= get_dates()[0], get_dates()[1], get_dates()[2], get_dates()[3]
 try:
-    curr_24_data = weather_data.loc[(weather_data['Datetime'] >= pd.to_datetime(get_dates()[0])) & (weather_data['Datetime'] < pd.to_datetime(get_dates()[1]))]
-    # curr_24_data = curr_24_data.reset_index()
-    # curr_24_data = curr_24_data.drop(columns=['index'])
+    curr_24_data = weather_data.loc[(weather_data.index >= start_date) & (weather_data.index < next_day)]
 except AttributeError as e:
-    print(f"{e}: Data for the current date. Please wait while we rectify this error.")
+    st.write(f"{e}: Data for the current date. Please wait while we rectify this error.")
 
 try:
-    nxt_24_data = weather_data.loc[(weather_data['Datetime'] >= pd.to_datetime(get_dates()[1])) & (weather_data['Datetime'] < pd.to_datetime(get_dates()[2]))]
+    nxt_24_data = weather_data.loc[(weather_data.index >= next_day) & (weather_data.index < second_day)]
 except AttributeError as e:
-    print(f"{e}: Data for the next date. Please wait while we rectify this error.")
+    st.write(f"{e}: Data for the next date. Please wait while we rectify this error.")
 
 try:
-    nxtT_24_data = weather_data.loc[(weather_data['Datetime'] >= pd.to_datetime(get_dates()[2])) & (weather_data['Datetime'] < pd.to_datetime(get_dates()[3]))]
+    nxtT_24_data = weather_data.loc[(weather_data.index >= second_day) & (weather_data.index < third_day)]
 except AttributeError as e:
-    print(f"{e}: Data for the later date. Please wait while we rectify this error.")
+    st.write(f"{e}: Data for the later date. Please wait while we rectify this error.")
 
 
 st.divider()
@@ -84,8 +80,7 @@ parameter_columns = []
 # Parameters page
 if page_to_show == "Parameters":
     
-    # Current temperature display
-    
+    # Current temperature display    
     st.header(f"Todays Weather in {selected_city} feels like:")
 
     f1, f2, f3 = st.columns(3)
@@ -153,7 +148,7 @@ if page_to_show == "Parameters":
 
             
         # Line plot for Helative Humidity
-        st.plotly_chart(px_line_plots(curr_24_data, 'Humidity (%)'), use_container_width=True)
+        st.plotly_chart(px_line_plots(curr_24_data, 'Relative Humidity (%)'), use_container_width=True)
 
         # Line Plot for Temperature
         st.plotly_chart(px_line_plots(curr_24_data, 'Temperature (°C)'), use_container_width=True)
@@ -167,10 +162,6 @@ if page_to_show == "Parameters":
         # Line Plot for Cloud Coverage
         st.plotly_chart(px_line_plots(curr_24_data, 'Cloud Coverage (%)'), use_container_width=True)
 
-        # Line plot for Thunderstorms
-        st.plotly_chart(px_line_plots(curr_24_data, 'Thunderstorm Occurrence'), use_container_width=True)
-
-
         st.divider()
         st.subheader("Tabular Parameters(Hourly)")
         st.write(f"{selected_city}")
@@ -180,12 +171,11 @@ if page_to_show == "Parameters":
         st.divider()
         st.subheader("Parameter Covarience")
 
-        st.plotly_chart(multi_bar(cities_data, 'Humidity (%)'))
+        st.plotly_chart(multi_bar(cities_data, 'Relative Humidity (%)'))
         st.plotly_chart(multi_bar(cities_data, 'Temperature (°C)'))
         st.plotly_chart(multi_bar(cities_data, 'Precipitation (mm)'))
         st.plotly_chart(multi_bar(cities_data, 'Wind Speed (m/s)'))
         st.plotly_chart(multi_bar(cities_data, 'Cloud Coverage (%)'))
-        st.plotly_chart(multi_bar(cities_data, 'Thunderstorm Occurrence'))
 
         st.divider()
         st.header("Meterogram")
