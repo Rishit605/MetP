@@ -6,7 +6,7 @@ import plotly.express as px
 from plotly.graph_objects import Figure
 
 from src.utils.plotting import *
-from src.utils.helpers import get_dates, meanT, meanW, meanH
+from src.utils.helpers import get_dates, meanT, meanW, meanH, truncate_float_columns
 from src.utils.weatherapi import cities_url, openMeteo_forecast_data_API
 
 # Read CSV data for each city
@@ -45,6 +45,7 @@ selected_city = st.selectbox("Select City:", list(cities_data.keys()))
 
 # Fetch weather data for the selected city
 weather_data = get_weather_data(selected_city) 
+weather_data = truncate_float_columns(weather_data)
 
 # # Renamning the Columns for preset names
 # data_frame_OWM.rename(columns={'temperature_2m': 'Temperature (°C)', 'relative_humidity_2m': 'Relavtive Humidity (%)', 'wind_gusts_10m': 'Wind Gust (m/s)', 'wind_speed_10m': 'Wind Speed (m/s)', 'wind_direction_10m':'Wind Direction (degrees)', 'cloud_cover':'Cloud Coverage (%)', 'rain': 'Precipitation (mm)', 'precipitation_probability': 'Precipitation Probability (%)'}, inplace=True)
