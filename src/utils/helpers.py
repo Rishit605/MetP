@@ -1,23 +1,19 @@
 # Distance between two poinnts on the earth
+import numpy as np
 from math import radians, cos, sin, asin, sqrt
 def distance_calc(lat1, lat2, lon1, lon2):
-	
-	# The math module contains a function named
+	# Radius of earth in kilometers. Use 3956 for miles
+	r = 6371
+
 	# radians which converts from degrees to radians.
-	lon1 = radians(lon1)
-	lon2 = radians(lon2)
-	lat1 = radians(lat1)
-	lat2 = radians(lat2)
+	lon1, lat1, lon2, lat2 = map(np.radians, [lon1, lat1, lon2, lat2])
 	
 	# Haversine formula 
 	dlon = lon2 - lon1 
 	dlat = lat2 - lat1
-	a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+	a = np.sin(dlat / 2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlon / 2)**2
 
-	c = 2 * asin(sqrt(a)) 
-	
-	# Radius of earth in kilometers. Use 3956 for miles
-	r = 6371
+	c = 2 * np.arcsin(np.sqrt(a)) 
 	
 	# calculate the result
 	return(c * r)
@@ -115,6 +111,13 @@ def meanH(dataa: pd.DataFrame):
     mean_h = mean_and_delta(dataa['Relative Humidity (%)'])[0]
     delta_h = mean_and_delta(dataa['Relative Humidity (%)'])[1]
     return mean_h, delta_h
+
+# Assuming your DataFrame is named 'my_df'
+def truncate_float_columns(df) -> pd.DataFrame:
+    for col in df.columns:
+        if df[col].dtype == 'float64':
+            df[col] = df[col].apply(lambda x: float(f"{x:.2f}"))
+    return df
 
 
 import math
